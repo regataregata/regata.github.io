@@ -30,6 +30,7 @@
 
 <body>
 
+
   <!-- <div class="top-display">
 
   <div class="regex">
@@ -46,6 +47,7 @@
   </div>
 </div> -->
   <div class="top-input">
+      <span id="audio" class="glyphicon glyphicon-volume-down"></span>
       <div id="title">Regata</div>
     <!-- <div class="top-left form-group">
 
@@ -110,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     $('.exp').text(regex);
     $('#regex-input').val(regex)
     $('#alphabet').val("");
+    // $('#str-input').val(inputPadding + "input")
     cy = cytoscape({
       container: document.querySelector('#cy'),
 
@@ -322,11 +325,15 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     $('#str-input').val(str.slice(0, i) + inputPadding + str.slice(i, str.length))
 
     if (i < path.length) {
-      if (audio && i === path.length - 1 && path[i].accept) {
-        accept.play();
+      if (i === path.length - 1 && path[i].accept) {
+        if (audio) {
+          accept.play();
+        }
           $('#str-input').css("background-color", '#ABC9C1')
-      } else if (audio && i === path.length - 1) {
-        reject.play();
+      } else if (i === path.length - 1) {
+        if (audio) {
+          reject.play();
+        }
         $('#str-input').css("background-color", "#D47B8B")
       } else if (audio){
         tick.play();
@@ -431,6 +438,12 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
   });
   $('#audio').on('click', function () {
     audio = !audio;
+    $('#audio').removeClass();
+    if (audio) {
+      $('#audio').addClass("glyphicon glyphicon-volume-down");
+    } else {
+      $('#audio').addClass("glyphicon glyphicon-volume-off");
+    }
   });
 }); // on dom ready
 
