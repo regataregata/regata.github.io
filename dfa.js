@@ -103,6 +103,7 @@ DFA.prototype.path = function (str) {
     this.currentState.set();
     if(!this.alphabetHash[str[k]] && !this.currentState.transition.$) {
       // outsideAlphabet = true;
+      result.push({accept: false});
       return result;
     }
     this.transition(str[k]);

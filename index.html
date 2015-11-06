@@ -67,7 +67,7 @@
     <span id="regex-submit" class="input-group-addon">to DFA</span>
 
 
-    <input type='text' placeholder="regex" value="" id="regex-input" class="form-control">
+    <input type='text' placeholder="* + ? {n} | [abc] ." value="" id="regex-input" class="form-control">
     <!-- <input type='text' placeholder="string" value="" id="str-input" class="form-control"> -->
     <!-- <input type='text' placeholder="alphabet" value="" id="alphabet" class="form-control"> -->
   </div>
@@ -112,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     $('.exp').text(regex);
     $('#regex-input').val(regex)
     $('#alphabet').val("");
-    // $('#str-input').val(inputPadding + "input")
     cy = cytoscape({
       container: document.querySelector('#cy'),
 
@@ -153,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
           })
           .selector('.source')
             .css({
-              'background-color': '#DBE667'
+              'background-color': '#DBE667',
+              'line-color':  '#DBE667',
+              'target-arrow-color': '#DBE667'
             }),
 
       elements: {
@@ -174,13 +175,13 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
         }
       }
     });
+  cy.elements('node#0').addClass('source');
   stateId = dfa.getStates().length;
   };
 
 
   function generateRandomDFA(alphabet) {
     regex = Regex.random(100, alphabet).toString();
-    console.log(regex);
     // $('.regex').text(regex);
     // $('#regex-input').val(regex);
     dfa = Regex.parse(regex);
@@ -189,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     for (var i = 0; i < 10; i++) {
     str = str + alphabet[getRandomInt(0, alphabet.length)];
     }
-    // $('.str').text(str);
     alg = dfa.algebraify();
     nodes = dfa.cyNodes();
     edges = dfa.cyEdges();
@@ -315,8 +315,12 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
 
   var i = 0
   var path = dfa.path(str);
-  var previous;
+  var previous = path[0];
+  var previousId = alg.statesMap[path[i].id].toString();
   var highlightNextEle = function(){
+    if (path[i].id) {
+      var currentId = alg.statesMap[path[i].id].toString();
+    }
     var tick = new Audio('./audio/beep.mp3');
     var accept = new Audio('./audio/accept.mp3');
     var reject = new Audio('./audio/reject.mp3');
@@ -340,27 +344,27 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       }
       $('.str').text(str.slice(i, str.length));
       $('.read').text(str.slice(0, i + 1));
-      $('.current').text(alg.statesMap[path[i].id].toString())
+      $('.current').text("#" + currentId)
       cy.elements().removeClass('source');
-      cy.$('#' + alg.statesMap[path[i].id].toString()).addClass('source');
-
+      cy.$("#" + currentId).addClass('source');
+      var transEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "' + str[i] + '"]');
+      transEdge.addClass('source');
+      previousId = currentId;
+        setTimeout(function () {
+          transEdge.removeClass('source');
+        }, 500);
       i++;
       setTimeout(highlightNextEle, 1000);
     } else {
+      cy.elements().removeClass('source');
       i = 0
     }
   };
-
-  // kick off first highlight
-  // highlightNextEle();
-
-
 
   $('#regex-submit').on('click', function (e) {
       clear();
     e.preventDefault()
     regex = $('#regex-input').val();
-    // $('#regex-input').val("");
     dfa = Regex.parse(regex);
     alg = dfa.algebraify();
     nodes = alg.cyNodes();
@@ -371,21 +375,16 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     dfa.cyEdges().forEach(function (edge) {
       cy.add(edge);
     })
-    // $('.regex').text(regex);
 
     setDFA(dfa);
 
   });
 
   $('#str-submit').on('click', function (e) {
-      e.preventDefault()
-    // dfa = Regex.parse(regex);
-    // if ($('#regex-input').val() !== "") {
-    //   setDFA(dfa)
-    // }
     e.preventDefault()
     var input = $('#str-input').val();
-    str = input.slice(Math.floor(inputPad), input.length - 1);
+    str = input.slice(Math.floor(inputPad), input.length);
+    //
     i = 0
     regex = $('.regex').text();
 
@@ -398,7 +397,8 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     cy.remove(cy.elements());
     $('.regex').text("");
     $('#str-input').val("");
-    $('#str-input').css('background-color', "#DEF2AC")
+    $('#str-input').css('background-color', '#DBE667')
+    // "#DEF2AC"
     stateId = 0;
   }
 
@@ -408,24 +408,20 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
 
   $('#random').on('click', function () {
     clear();
-    // var alph = $('#alphabet').val().split(",").join("");
-    // if (alph === "") {
-    //   alph = "abcdefghijklmnopqrstuvwxyz";
-    //   $('#alphabet').val(alph);
-    // };
-    // $('#alphabet').autoGrowInput();
-    // generateRandomDFA(alph);
     generateRandomDFA("qwertyuioplkjhgfdsazxcvbnm");
   });
 
   $('.top-display.g').on('click', function (e) {
     // e.preventDefault();
+    cy.elements().removeClass('source');
+    cy.elements('node#0').addClass('source');
     var $target = $(e.target)
     $target.val("");
-    $target.css('background-color', "#DEF2AC")
+    $target.css('background-color',   '#DBE667')
+
+    // "#DEF2AC"
 
     var block = ""
-    // var inputPad = $('body').width() / 10;
     var c = 0;
     while (c < inputPad) {
     block = block + " ";
@@ -434,7 +430,6 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     inputPadding = block
     $target.val(inputPadding)
     $target.setCursorPosition(Math.floor(inputPad))
-// debugger
   });
   $('#audio').on('click', function () {
     audio = !audio;
@@ -445,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       $('#audio').addClass("glyphicon glyphicon-volume-off");
     }
   });
-}); // on dom ready
+});
 
 </script>
 </body>
