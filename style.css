@@ -1,0 +1,91 @@
+body {
+  /*font: 14px helvetica neue, helvetica, arial, sans-serif;*/
+  /*font-family: Oxygen;*/
+}
+
+div {
+  font-family: Oxygen;
+}
+#title {
+  width: 100%;
+  text-align: center;
+  font-size: 50px;
+  padding: 0;
+  margin: 0;
+  /*background-color: #A9B4C4;*/
+
+  color: #435473;
+  /*#435473;*/
+  /*#29294D;*/
+
+}
+
+#cy {
+  height: 80%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+#info {
+  color: #c88;
+  font-size: 1em;
+  position: absolute;
+  z-index: -1;
+  left: 1em;
+  top: 1em;
+}
+
+.top-display.g {
+  height: 25px;
+  width: 100%;
+  /*background-color: #A9B4C4;*/
+  background-color: #DEF2AC;
+  top: 0;
+  color: "white";
+border-bottom: dashed 1px;
+
+}
+
+.top-input {
+  /*display: inline-block;*/
+  display: block;
+background-color: #ABC9C1;
+ /*#A9B4C4;*/
+  /*#353A5E;*/
+  top: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.regex, .stream, .read, .current, .exp {
+  display: inline-block;
+  color: "white";
+  margin: auto;
+  padding: auto;
+}
+
+.input-group-addon {
+  cursor: pointer;
+  width: 70px;
+}
+
+.input-group {
+  width: 100%;
+  border-radius: 0px
+}
+.input-group-addon {
+  border-radius: 0px;
+  background-color: "red"
+}
+
+
+/*.input-group {
+  margin: 5px
+}*/
+
+#title {
+  top: 0;
+  margin: 0;
+}
