@@ -326,7 +326,8 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     var reject = new Audio('./audio/reject.mp3');
     cy.elements().removeClass('source');
 
-    $('#str-input').val(str.slice(0, i) + inputPadding + str.slice(i, str.length))
+    // $('#str-input').val(str.slice(0, i) + inputPadding + str.slice(i, str.length))
+    $('#str-input').val(str.slice(0, i) + "  " + str.slice(i, str.length))
 
     if (i < path.length) {
       if (i === path.length - 1 && path[i].accept) {
@@ -344,10 +345,14 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       }
       $('.str').text(str.slice(i, str.length));
       $('.read').text(str.slice(0, i + 1));
-      $('.current').text("#" + currentId)
+
+
+
+      // $('.current').text("#" + currentId)
       cy.elements().removeClass('source');
       cy.$("#" + currentId).addClass('source');
       var transEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "' + str[i] + '"]');
+      console.log(transEdge);
       transEdge.addClass('source');
       previousId = currentId;
         setTimeout(function () {
@@ -383,8 +388,8 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
   $('#str-submit').on('click', function (e) {
     e.preventDefault()
     var input = $('#str-input').val();
-    str = input.slice(Math.floor(inputPad), input.length);
-    //
+    // str = input.slice(Math.floor(inputPad), input.length);
+    str = input;
     i = 0
     regex = $('.regex').text();
 
@@ -420,16 +425,15 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     $target.css('background-color',   '#DBE667')
 
     // "#DEF2AC"
-
-    var block = ""
-    var c = 0;
-    while (c < inputPad) {
-    block = block + " ";
-    c++;
-    }
-    inputPadding = block
-    $target.val(inputPadding)
-    $target.setCursorPosition(Math.floor(inputPad))
+    // var block = ""
+    // var c = 0;
+    // while (c < inputPad) {
+    // block = block + " ";
+    // c++;
+    // }
+    // inputPadding = block
+    // $target.val(inputPadding)
+    // $target.setCursorPosition(Math.floor(inputPad))
   });
   $('#audio').on('click', function () {
     audio = !audio;

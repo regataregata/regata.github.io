@@ -2,6 +2,10 @@
    text-align: center;
 }
 
+input#str-input {
+    text-align: center;
+}
+
 body {
   /*font: 14px helvetica neue, helvetica, arial, sans-serif;*/
   /*font-family: Oxygen;*/
