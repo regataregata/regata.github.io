@@ -48,7 +48,7 @@
 </div> -->
   <div class="top-input">
       <span id="audio" class="glyphicon glyphicon-volume-down"></span>
-      <div id="title">Regata</div>
+      <div id="title">RegataRegata</div>
     <!-- <div class="top-left form-group">
 
 
@@ -351,8 +351,15 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       // $('.current').text("#" + currentId)
       cy.elements().removeClass('source');
       cy.$("#" + currentId).addClass('source');
-      var transEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "' + str[i] + '"]');
+
+      var transEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "' + str[i - 1] + '"]');
+      console.log(str[i]);
+      console.log(cy.elements('node#' + previousId));
+      console.log(cy.elements('node#' + currentId));
+      console.log(previousId);
+      console.log(currentId);
       console.log(transEdge);
+      console.log("---");
       transEdge.addClass('source');
       previousId = currentId;
         setTimeout(function () {
