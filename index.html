@@ -61,10 +61,10 @@
   </div>
   </div>
   <div class="input-group form-group-item">
-    <span id="random" class="input-group-addon"><span id="random" class="glyphicon glyphicon-random"></span></span>
-    <span id="str-submit" class="input-group-addon"><span id="str-submit" class="glyphicon glyphicon-play"></span></span>
+    <span id="random" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="random" class="glyphicon glyphicon-random"></span></span>
+    <span id="str-submit" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="str-submit" class="glyphicon glyphicon-play"></span></span>
 
-    <span id="regex-submit" class="input-group-addon">to DFA</span>
+    <span id="regex-submit" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="str-submit">to DFA</span></span>
 
 
     <input type='text' placeholder="* + ? {n} | [abc] ." value="" id="regex-input" class="form-control">
@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       cy.$("#" + currentId).addClass('source');
 
       var transEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "' + str[i - 1] + '"]');
+      var wildTransEdge = cy.elements('edge[source = "' + previousId + '"][target = "' + currentId + '"][name = "$"]');
       console.log(str[i]);
       console.log(cy.elements('node#' + previousId));
       console.log(cy.elements('node#' + currentId));
@@ -361,9 +362,11 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       console.log(transEdge);
       console.log("---");
       transEdge.addClass('source');
+      wildTransEdge.addClass('source');
       previousId = currentId;
         setTimeout(function () {
           transEdge.removeClass('source');
+          wildTransEdge.removeClass('source');
         }, 500);
       i++;
       setTimeout(highlightNextEle, 1000);

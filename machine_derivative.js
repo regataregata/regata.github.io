@@ -27,21 +27,31 @@ var MachineDerivative = function (options) {
              destStateMap.push([k, horizon]);
            }
       } else {
-      alphabet.forEach(function (char) {
-        horizon = span(sourceStates, char);
-        if (horizon) {
-          close(horizon);
-          destStateMap.push([char, horizon]);
-        }
-      });
-      }
-
-      var wildStates = sourceStates.suchThat(function (state) {
+        alphabet.forEach(function (char) {
+          horizon = span(sourceStates, char);
+          if (horizon) {
+            close(horizon);
+            destStateMap.push([char, horizon]);
+          }
+        });
+        var wildStates = sourceStates.suchThat(function (state) {
         return state.transition.$;
       });
       if (wildStates) {
         var wildDests = span(wildStates, '$');
         close(wildDests);
+
+        // if (destStateMap.length !== 0) {
+        //   var otherDests = destStateMap.map(function (pair) {
+        //     return pair[1];
+        //   }).reduce(function (x, y) {
+        //     return x.unionById(y);
+        //   });
+        // }
+        // if (!otherDests) {
+        //   otherDests = [];
+        // }
+
 
         if (destStateMap.length !== 0) {
           var otherDests = destStateMap.map(function (pair) {
@@ -49,10 +59,39 @@ var MachineDerivative = function (options) {
           }).reduce(function (x, y) {
             return x.unionById(y);
           });
-          wildDests._unionById(otherDests);
+
+          destStateMap = destStateMap.map(function (pair) {
+            return [pair[0], pair[1].unionById(wildDests)];
+            //
+          });
         }
-        destStateMap = [['$', wildDests]];
+
+        if (!otherDests) {
+          otherDests = [];
+        }
+        // destStateMap = [['$', wildDests.unionById(otherDests)]];
+        destStateMap.push(['$', wildDests.takeAwayById(otherDests)]);
+
+        }
       }
+
+      // var wildStates = sourceStates.suchThat(function (state) {
+      //   return state.transition.$;
+      // });
+      // if (wildStates) {
+      //   var wildDests = span(wildStates, '$');
+      //   close(wildDests);
+      //
+      //   if (destStateMap.length !== 0) {
+      //     var otherDests = destStateMap.map(function (pair) {
+      //       return pair[1];
+      //     }).reduce(function (x, y) {
+      //       return x.unionById(y);
+      //     });
+      //     wildDests._unionById(otherDests);
+      //   }
+      //   destStateMap = [['$', wildDests]];
+      // }
 
     var stateTransition = function () {
       var trans = {};
