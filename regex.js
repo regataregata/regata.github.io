@@ -1,10 +1,76 @@
-(function (){
+
 var numCalls = 0;
 var maxCalls = 2000
 
+
+var emptySet = function () {
+
+};
+
+emptySet.simplify = function () {
+  return this;
+};
+
+emptySet.toString = function () {
+  return "~";
+};
+
+emptySet.equals = function (other) {
+  return this === other
+};
+
 function Atom(char) {
   this.exp = char;
+};
+
+function Word(word) {
+  this.exp = word;
+};
+
+function Star(exp) {
+  this.exp = exp;
+};
+
+function Union(left, right) {
+  this.left = left;
+  this.right = right;
+};
+
+function Concat(left, right) {
+  this.left = left;
+  this.right = right;
+};
+
+function Collect(block) {
+  this.exp = block;
+};
+
+function Dot() {
+};
+
+function Choice(exp) {
+  this.exp = exp;
+};
+
+function Pow(exp, e) {
+  this.exp = exp;
+  this.e = e;
 }
+
+function StarPlus(exp) {
+  this.exp = exp;
+}
+
+
+function Regex(exp) {
+  this.exp = exp;
+};
+
+var asState = new State(function () {
+  return {a: asState};
+}, true);
+
+var asDFA = new DFA(asState, ['a'])
 
 Atom.prototype.toDFA = function () {
   var start = new State(function () {
@@ -41,10 +107,6 @@ Atom.prototype.toNFA = function () {
   return new NFA(start, [this.exp]);
 };
 
-function Word(word) {
-  this.exp = word;
-}
-
 Atom.prototype.toString = function () {
     return this.exp;
 };
@@ -56,6 +118,14 @@ Atom.random = function (alphabet) {
  } else {
    return new Atom(alphabet[getRandomInt(0, alphabet.length)])
  }
+}
+
+Atom.prototype.simplify = function () {
+  return this;
+}
+
+Atom.prototype.equals = function (other) {
+  return other.exp && this.exp === other.exp;
 }
 
 
@@ -99,13 +169,8 @@ var zero = new Atom("0").toDFA();
 //
 // var oneThenZeroNFA = oneNFA._concatenate(zeroNFA)
 
-function Star(exp) {
-  this.exp = exp;
-};
 
-function Regex(exp) {
-  this.exp = exp;
-};
+
 
 Regex.prototype.toDFA = function () {
   return this.exp.toNFA().toDFA();
@@ -113,37 +178,41 @@ Regex.prototype.toDFA = function () {
 
 Regex.prototype.toNFA = function () {
   return this.exp.toNFA();
-}
+};
 
 Regex.prototype.toString = function () {
   return this.exp.toString();
-}
+};
+
+Regex.prototype.simplify = function () {
+  this.exp = this.exp.simplify()
+};
+
 
 Star.prototype.toDFA = function () {
   return this.exp.toDFA().star()
-}
+};
 
 Star.prototype.toNFA = function () {
   return this.exp.toNFA()._star();
-}
+};
 
 Star.prototype.toString = function () {
+
   var chance = getRandomInt(0, 2);
-  if (chance < 0) {
+  // if (chance < 0) {
     return '(' + this.exp.toString() + ')*';
-  } else {
-    return this.exp.toString() + '*'
-  }
+  // } else {
+  //   return this.exp.toString() + '*'
+  // }
 };
 
 Star.random = function (depth, alphabet) {
   var rand = getRandomInt(0, depth);
   if (rand <= 0 || numCalls > maxCalls) {
-      console.log('star');
     return new Star(Atom.random(alphabet));
   } else {
     var newDepth = getRandomInt(0, depth - 1);
-      console.log('star');
       numCalls++;
     return new Star(regexForms[getRandomInt(0, 6)].random(newDepth, alphabet));
 
@@ -151,21 +220,37 @@ Star.random = function (depth, alphabet) {
 
 };
 
+Star.prototype.simplify = function () {
+  if (this.exp.exp === "_" || this.exp === emptySet) {
+    return new Atom("_");
+  }
+  if (this.exp.constructor.name === "Choice") {
+    return new Star((this.exp.exp).simplify());
+  }
+  return new Star(this.exp.simplify());
+};
+
+Star.prototype.equals = function (other) {
+  return (other.constructor.name === "Star" && this.exp === other.exp)
+};
+
+
+
 Concat.prototype.toDFA = function () {
   return this.left.toDFA().concatenate(this.right.toDFA())
-}
+};
 
 Concat.prototype.toNFA = function () {
   return this.left.toNFA()._concatenate(this.right.toNFA())
-}
+};
 
 Concat.prototype.toString = function (noParens) {
   var chance = getRandomInt(0, 2);
-  if (chance < 0) {
-    return '(' + this.left.toString() + this.right.toString()  + ')';
-  } else {
-        return this.left.toString() + this.right.toString();
-    }
+    // if (chance === 0) {
+      return '(' + this.left.toString() + this.right.toString()  + ')';
+    // } else {
+      // return this.left.toString() + this.right.toString();
+    // }
 };
 
 Concat.random = function (depth, alphabet) {
@@ -204,10 +289,41 @@ Concat.random = function (depth, alphabet) {
   return new Concat(left, right);
 };
 
-function Union(left, right) {
-  this.left = left;
-  this.right = right;
+Concat.prototype.simplify = function () {
+  var leftIdentity = (this.left.exp === "_")
+  var rightIdentity = (this.right.exp === "_")
+  if (this.left === emptySet || this.right === emptySet) {
+    return emptySet;
+  }
+  if (leftIdentity && this.right) {
+    // this.right.simplify();
+    return this.right.simplify();
+  }
+  if (rightIdentity && this.left) {
+    // this.left.simplify();
+    return this.left.simplify();
+  }
+  if (this.left.constructor.name === "Pow" && this.right.constructor.name === "Pow" && this.left.exp.equals(this.right.exp)) {
+    return new Pow(this.left, this.left.e + this.right.e);
+  }
+  if (this.left.constructor.name === "Pow" && this.left.exp.equals(this.right)) {
+    return new Pow(this.right, this.left.e + 1);
+  }
+  if (this.right.constructor.name === "Pow" && this.right.exp.equals(this.left)) {
+    return new Pow(this.left, this.right.e + 1);
+  }
+  if (this.left.equals(this.right)) {
+    return new Pow(this.left, 2);
+  }
+    // this.left.simplify();
+    // this.right.simplify();
+  return new Concat(this.left.simplify(), this.right.simplify());
 };
+
+Concat.prototype.equals = function (other) {
+  return (other.constructor.name === "Concat" && this.left.equals(other.left) && this.right.equals(other.right));
+}
+
 
 Union.prototype.toDFA = function () {
   return this.left.toDFA().union(this.right.toDFA())
@@ -219,11 +335,11 @@ Union.prototype.toNFA = function () {
 
 Union.prototype.toString = function (noParens) {
   var chance = getRandomInt(0, 2);
-  if (chance <= 0) {
+  // if (chance === 0) {
     return '(' + this.left.toString() + '|' + this.right.toString()  + ')';
-  } else {
-    return this.left.toString() + '|' + this.right.toString();
-  }
+  // } else {
+    // return this.left.toString() + '|' + this.right.toString();
+  // }
 };
 
 
@@ -254,12 +370,60 @@ Union.random = function (depth, alphabet) {
   return new Union(left, right);
 };
 
-function Collect(block) {
-  this.block = block;
-};
+Union.prototype.simplify = function () {
+  var leftIdentity = (this.left.exp === "_")
+  var rightIdentity = (this.right.exp === "_")
+  if (this.left === emptySet) {
+    return this.right;
+  }
+  if (this.right === emptySet) {
+    return this.left;
+  }
+  if (leftIdentity && rightIdentity) {
+    return new Atom("_");
+  }
+  if (leftIdentity) {
+    // this.right.simplify();
+    return new Choice(this.right.simplify());
+  }
+  if (rightIdentity) {
+    // this.left.simplify();
+    return new Choice(this.left.simplify());
+  }
+  // if (this.left.exp && (this.left.exp === this.right.exp)) {
+  //   console.log(this.left.exp);
+  //   console.log(this.right.exp);
+  //   console.log("-");
+  //   return this.left.simplify();
+  // }
+  if (this.left.equals(this.right)) {
+    return this.left.simplify();
+  }
+  if (this.left.exp && this.right.exp && (typeof this.left.exp === "string") && (typeof this.right.exp === "string")) {
+    return new Collect(this.left.exp.union(this.right.exp));
+  }
+
+  return new Union(this.left.simplify(), this.right.simplify());
+}
+
+String.prototype.union = function (other) {
+  return this.split("").union(other.split("")).join("");
+}
+
+Union.prototype.equals = function (other) {
+  return (other.constructor.name === "Union" && (this.left.equals(other.left) && this.right.equals(other.right) ||
+  this.left.equals(other.right) && this.right.equals(other.left) ||
+  this.right.equals(other.right) && this.left.equals(other.left)||
+  this.right.equals(other.left) && this.left.equals(other.right)))
+}
+
+String.prototype.simplify = function () {
+  return new Atom(this);
+}
+
 
 Collect.prototype.toString = function () {
-  return '[' + this.block + ']';
+  return '[' + this.exp + ']';
 };
 
 Collect.random = function (_, alphabet) {
@@ -270,8 +434,22 @@ Collect.random = function (_, alphabet) {
   return new Collect(block);
 };
 
-function Dot() {
+Collect.prototype.simplify = function () {
+  return this;
+}
+
+Collect.prototype.equals = function (other) {
+  //ok function since alphabet is of bounded size
+  function anagrams(left, right) {
+    return left.split("").all(function (char) {
+      return right.split("").contains(char);
+    }) && right.split("").all(function (char) {
+      return left.split("").contains(char);
+    });
+  }
+  return other.constructor.name === "Collect" && anagrams(this.exp, other.exp)
 };
+
 
 Dot.prototype.toString = function () {
   return '.';
@@ -281,9 +459,7 @@ Dot.prototype.toNFA = function () {
   return anything;
 };
 
-function Choice(exp) {
-  this.exp = exp;
-};
+
 
 Dot.random = function () {
   return new Dot();
@@ -297,11 +473,14 @@ Choice.prototype.toNFA = function () {
 
 Choice.prototype.toString = function () {
   var chance = getRandomInt(0, 2);
-  if (chance <= 0) {
+  // if (this.exp.exp === "_") {
+  //   return ""
+  // }
+  // if (chance === 0) {
     return '(' + this.exp.toString() + ')?';
-  } else {
-    return this.exp.toString() + '?';
-  }
+  // } else {
+    // return this.exp.toString() + '?';
+  // }
 };
 
 Choice.random = function (depth, alphabet) {
@@ -316,18 +495,31 @@ Choice.random = function (depth, alphabet) {
   };
 };
 
-function Pow(exp, e) {
-  this.exp = exp;
-  this.e = e;
+Choice.prototype.simplify = function () {
+  if (this.exp.exp === "_" || this.exp === emptySet) {
+    return new Atom("_");
+  } else {
+    return new Choice(this.exp.simplify());
+  }
+
 }
+
+Choice.prototype.equals = function (other) {
+  return other.constructor.name === "Choice" && this.exp.equals(other.exp)
+}
+
+
 
 Pow.prototype.toString = function () {
   var chance = getRandomInt(0, 2);
-  if (chance <= 0) {
-    return '(' + this.exp.toString() + ')' + '{' + this.e.toString() + '}';
-  } else {
-   return this.exp.toString() + '{' + this.e.toString() + '}';
+  if (this.exp.exp === "_") {
+    return ""
   }
+  // if (chance <= 0) {
+    return '(' + this.exp.toString() + ')' + '{' + this.e.toString() + '}';
+  // } else {
+  //  return this.exp.toString() + '{' + this.e.toString() + '}';
+  // }
 };
 
 Pow.random = function (depth, alphabet) {
@@ -338,18 +530,29 @@ Pow.random = function (depth, alphabet) {
   } else {
     var newDepth = getRandomInt(0, depth - 1);
     numCalls++;
-    return new Pow(regexForms[getRandomInt(0, 6)].random(newDepth, alphabet), getRandomInt(1, 6));
+    return new Pow(regexForms[getRandomInt(0, 6)].random(newDepth, alphabet), getRandomInt(2, 6));
 
     // return new Pow(Atom.random(alphabet), getRandomInt(1, 11));
   };
 };
 
-function StarPlus(exp) {
-  this.exp = exp;
+Pow.prototype.simplify = function () {
+  if (this.exp.constructor.name === "Pow" && this.exp.exp.equals(this.exp)) {
+    return new Pow(this.exp, this.e * this.exp.e);
+  }
+  return new Pow(this.exp.simplify(),this.e);
 }
+
+Pow.prototype.equals = function (other) {
+  return other.constructor.name === "Pow" && this.exp.equals(other.exp) && (this.e === other.e);
+}
+
 
 StarPlus.prototype.toString = function () {
   var chance = getRandomInt(0, 2);
+  if (this.exp.exp === "_") {
+    return "_";
+  }
   if (chance <= 0) {
     return '(' + this.exp.toString() + ')+';
   } else {
@@ -369,10 +572,7 @@ StarPlus.random = function (depth, alphabet) {
   };
 };
 
-function Concat(left, right) {
-  this.left = left;
-  this.right = right;
-};
+
 var c = 0;
 
 Regex.random = function (depth, alphabet) {
@@ -385,6 +585,10 @@ Regex.random = function (depth, alphabet) {
 };
 
 
+DFA.random = function () {
+  return Regex.random(100, "abcdefghijklmnopqrstuvwxyz").toNFA().toDFA();
+}
+
 var regexForms = {
   "0": Union,
   "1": Concat,
@@ -395,4 +599,3 @@ var regexForms = {
   "6": StarPlus,
   "7": Dot
 }
-})();

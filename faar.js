@@ -12,6 +12,7 @@ var FAAR = function (numStates, transitions, startKey, alphabet, acceptStates, s
     this.acceptStates[key] = true;
   }.bind(this));
   this.statesMap = statesMap;
+  this.nfa = nfa
 };
 
 FAAR.algebraify = function (dfa) {

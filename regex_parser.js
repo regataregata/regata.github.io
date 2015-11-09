@@ -1,3 +1,7 @@
+function error() {
+
+};
+
 Regex.lexFirst = function (str) {
   var special = ['*', '+', '?', '.', '@', '|', '(', ')', '[', ']', '{', '}'];
   var unaryOperators = ['*', '+', '?', '.'];
@@ -45,21 +49,25 @@ Regex.lexFirst = function (str) {
       i++;
       var numString = '';
       if (!isDigit(str[i]) || str[i] === '0') {
-        throw 'invalid multiplier';
+        // throw 'invalid multiplier';
+        return [error, 'invalid exponent'];
       };
       while (i < str.length && str[i] !== '}') {
         if ((!isDigit(str[i]) && str[i] !== ',') || isSpecial(str[i])) {
-          throw 'invalid multiplier';
+          // throw 'invalid multiplier';
+            return [error, 'invalid exponent'];
         }
         numString = numString + str[i];
         i++;
       };
       if (i === str.length) {
-        throw 'unclosed multiplier bracket';
+        // throw 'unclosed multiplier bracket';
+        return [error, 'unclosed exponent bracket'];
       }
       var range = numString.split(',')
       if (range.length > 2) {
-        throw 'invalid range';
+        // throw 'invalid range';
+        return [error, 'invalid range'];
       }
       i++;
       result.push(parseInt(numString));
@@ -69,13 +77,15 @@ Regex.lexFirst = function (str) {
       i++;
       while (1 < str.length && str[i] !== ']') {
         if (isSpecial(str[i])) {
-          throw 'invalid set'
+          // throw 'invalid set'
+          return [error, 'invalid set'];
         }
         block = block + str[i];
         i++;
       }
       if (i === str.length) {
-        throw "unclosed '['"
+        // throw "unclosed '['"
+        return [error, 'unclosed "]"']
       };
       var union = block.split('').map(function (char) {
         return new Atom(char).toNFA();
@@ -90,7 +100,8 @@ Regex.lexFirst = function (str) {
       i++;
     }
     else if (str[i] === ']' || str[i] == '}') {
-      throw "unclosed '[' or '{'";
+      // throw "unclosed '[' or '{'";
+      return [error, 'unclosed "]" or "{"'];
     }
     else {
       result.push(str[i]);
@@ -102,6 +113,9 @@ Regex.lexFirst = function (str) {
 
 
 Regex.lexSecond = function (arr) {
+  if (arr[0] === error) {
+    return arr;
+  };
   var special = ['*', '+', '?', '@', '|', '(', ')', '[', ']', '{', '}'];
   var unaryOperators = ['*', '+', '?', '.'];
   var digits = '0123456789'.split('');
@@ -160,6 +174,9 @@ Regex.lex = function (str) {
 Regex.toRPN = function (str) {
   var stream = Regex.lexFirst(str);
   stream = Regex.lexSecond(stream);
+  if (stream[0] === error) {
+    return stream;
+  };
   var special = ['*', '+', '?', '@', '|', '(', ')', '[', ']', '{', '}'];
   var operators = ['*', '+', '?', '@', '|'];
   var unaryOperators = ['*', '+', '?', '.'];
@@ -261,7 +278,8 @@ Regex.toRPN = function (str) {
         // eval(prevTok, queue)
       }
       if (stack.length === 0) {
-        throw 'error'
+        // throw 'error'
+        return [error, "unmatched parenthesis"]
       }
       stack.pop();
       i++;
@@ -298,6 +316,9 @@ Regex.toRPN = function (str) {
 };
 
 Regex.evaluate = function (stream) {
+  if (stream[0] === error) {
+    return stream;
+  };
   var special = ['*', '+', '?', '@', '|', '(', ')', '[', ']', '{', '}'];
   var operators = ['*', '+', '?', '@', '|'];
   var unaryOperators = ['*', '+', '?', '.'];
@@ -364,7 +385,8 @@ Regex.evaluate = function (stream) {
 
   function eval(tok) {
     if (isSpecial(stack.last())) {
-      throw 'syntax error'
+      // throw 'syntax error'
+      return [error, "invalid use of binary operator"];
     }
     if (!isUnOp(tok)) {
       var left = stack.pop();
@@ -388,9 +410,13 @@ Regex.evaluate = function (stream) {
 }
 
 Regex.parse = function (str) {
+  var baseDFA = Regex.evaluate(Regex.toRPN(str));
+  if (baseDFA[0] === error) {
+    return baseDFA[1]
+  }
   if (str.split('').contains('.')) {
-    return Regex.evaluate(Regex.toRPN(str))
+    return baseDFA
   } else {
-    return Regex.evaluate(Regex.toRPN(str)).minimize()
+    return baseDFA.minimize()
   }
 }

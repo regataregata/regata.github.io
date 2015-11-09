@@ -1,15 +1,5 @@
 <!DOCTYPE html>
 <html>
-  <script src="vendor/jquery-1.11.3.js"></script>
-<script src="state.js"></script>
-<script src="util.js"></script>
-<script src="dfa.js"></script>
-<script src="nfa.js"></script>
-<script src="machine_derivative.js"></script>
-<script src="faar.js"></script>
-<script src="regex.js"></script>
-<script src="regex_parser.js"></script>
-<script src="cy.js"></script>
 <head>
   <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
@@ -40,6 +30,13 @@
 <body>
 
 <!-- <div class="transition-submit"> -->
+<div id="transition-error" class="error">
+  There is a missing or an extra transition
+</div>
+
+<div id="syntax-error" class="error">
+  Syntax Error
+</div>
 <input class="transition-submit" type="text" name="name" value="" placeholder="character">
 <!-- </div> -->
   <!-- <div class="top-display">
@@ -79,7 +76,7 @@
         <input type="text" class="form-control" placeholder="Search for...">
       </div> -->
 
-      <input id="str-input" class="top-display g" placeholder="input" class="form-control">
+
 
 
 
@@ -92,7 +89,7 @@
 
 
     <span id="regex-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
-    <span id="regex-submit" class="glyphicon glyphicon-save">
+    <span id="regex-submit">to DFA
     </span>
     </span>
 
@@ -103,7 +100,7 @@
     <!-- <input type='text' placeholder="string" value="" id="str-input" class="form-control"> -->
     <!-- <input type='text' placeholder="alphabet" value="" id="alphabet" class="form-control"> -->
     <span id="dfa-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
-    <span id="dfa-submit" class="glyphicon glyphicon-share-alt gly-flip-horizontal"></span>
+    <span id="dfa-submit">to Regex</span>
     </span>
 
     <span id="add-state" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
@@ -123,7 +120,7 @@
     </span>
   </div>
 </div>
-
+  <input id="str-input" class="top-display g" placeholder="input" class="form-control">
 <span id="str-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-left:1px;border-right:1px;">
 <span  class="glyphicon glyphicon-play"></span>
 </span>
@@ -152,8 +149,8 @@
 
 document.addEventListener('DOMContentLoaded', function(){ // on dom ready
 
-
-
+$('body').addClass("fresh");
+  $('.error').hide();
   $('.transition-submit').hide();
   $('#regex-input').focus();
   var regex = "";
@@ -237,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
 
   function setDFA(dfa) {
     // clear();
-
+    $('body').addClass('fresh');
     $('#regex-input').removeClass('rerender');
     $('.read').text("");
     $('.current').text("");
@@ -385,13 +382,18 @@ layout.run();
   // setDFA(dfa)
 
   cy.on('tap', 'node', function(e){
+    if (!$('body').hasClass('fresh')) {
     var node = e.cyTarget;
     // var neighborhood = node.neighborhood().add(node);
     if (node.hasClass('active')) {
       cy.add({
         group: 'edges',
-        data: {source: cy.$('.source').id().toString(), target: node.id()}
+        data: {source: cy.$('.source').id().toString(), target: node.id(), genesis: "1"}
       });
+      cy.elements('edge[genesis = "1"]').addClass('focused');
+      cy.elements('edge[genesis = "1"]').data("genesis", "0");
+      $('.transition-submit').show();
+
       // node.removeClass('source');
       cy.elements().nodes().removeClass('source')
       cy.elements().nodes().removeClass('active')
@@ -402,22 +404,37 @@ layout.run();
         node.addClass('source');
 
       }
+    }
   });
 
   cy.on('tap', 'edge', function(e){
+    if (!$('body').hasClass('fresh')) {
     cy.elements().removeClass('source');
     $('.transition-submit').show();
     $('.transition-submit').focus();
     var edge = e.cyTarget;
     edge.addClass('focused');
+  }
+  });
 
+  $('body').on('click', function (e) {
+$('.error').hide();
+
+    if (!($(e.target).hasClass('transition-submit')) && $(':focus').length !== 0) {
+      $('.transition-submit').val("");
+      $('.transition-submit').hide();
+    } else {
+        $('.transition-submit').focus();
+    }
   });
 
   $('#set-accept').on('click', function () {
+    if (!$('body').hasClass('fresh')) {
     cy.elements().removeClass('active');
     cy.$('.source').data('color', '#ABC9C1');
     cy.$('.source').data('accept', '1');
     cy.$('.source').removeClass('source');
+    }
   });
 
 
@@ -434,6 +451,7 @@ layout.run();
   });
 
     $('#add-state').on('click', function(e){
+          if (!$('body').hasClass('fresh')) {
       function center() {
         return [$('body').width() / 2, $('body').height() / 2]
       }
@@ -446,22 +464,44 @@ layout.run();
     // if( e.cyTarget === cy ){
     //   cy.elements().removeClass('faded');
     // }
+  } else {
+    clear();
+    $('body').removeClass('fresh')
+    cy.add({
+        group: 'nodes',
+        data: {id: stateId, color: '#C29393', name: stateId, accept: '0'},
+        position: { x: 650, y: 250 }
+    });
+  }
   });
 
   $('#remove-state').on('click', function(e){
-    cy.$('.source').remove();
-    cy.$('.focused').remove();
-    $('.transition-submit').hide();
+    if (!$('body').hasClass('fresh')) {
+      cy.$('.source').remove();
+      cy.$('.focused').remove();
+      $('.transition-submit').hide();
+    } else {
+      clear();
+      $('body').removeClass('fresh');
+    }
   });
 
   $('#dfa-submit').on('click', function () {
-    var faar = CY.toFAAR(cy);
-    dfa = faar.machineify();
-    alg = dfa.algebraify();
-    nodes = alg.cyNodes();
-    edges = alg.cyEdges();
-    var regex = dfa.toRegex().toString();
-    $('#regex-input').val(regex);
+    if (!$('body').hasClass('fresh')) {
+      var faar = CY.toFAAR(cy);
+      if (faar.nfa) {
+        setTimeout(function () {
+          $('#transition-error').show();
+        }, 0);
+        return;
+      }
+      dfa = faar.machineify();
+      alg = dfa.algebraify();
+      nodes = alg.cyNodes();
+      edges = alg.cyEdges();
+      var regex = dfa.toRegex().toString();
+      $('#regex-input').val(regex);
+    }
   });
 
   var i = 0
@@ -532,9 +572,17 @@ layout.run();
   })
 
   $('#regex-submit').on('click', function (e) {
-    clear();
     regex = $('#regex-input').val();
+    clear();
     dfa = Regex.parse(regex);
+    if ((typeof dfa) === "string") {
+      var error = dfa;
+      setTimeout(function () {
+        $('#syntax-error').text("Syntax Error: " + error)
+        $('#syntax-error').show();
+      }, 0)
+      return;
+    };
     alg = dfa.algebraify();
     nodes = alg.cyNodes();
     edges = alg.cyEdges();
@@ -577,7 +625,8 @@ layout.run();
 
   function clear() {
     cy.remove(cy.elements());
-    $('.regex').text("");
+    // $('.regex').text("");
+    $('#regex-input').val("");
     $('#str-input').val("");
     $('#str-input').css('background-color', '#DBE667')
     // "#DEF2AC"

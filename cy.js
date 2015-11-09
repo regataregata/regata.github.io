@@ -46,10 +46,14 @@ CY.toFAAR = function (cy) {
   var statesMap = {};
   var alphabet = [];
   var multiTransition;
+  var missingTransition;
   var numTransitions = 0;
 
   cy.elements().edges().each(function (i, edge) {
     var char = edge.data().name;
+    if (!char) {
+      missingTransition = true;
+    };
     var source = parseInt(edge.data().source);
     var target =  parseInt(edge.data().target);
     if (!alphabet.contains(char)) {
@@ -72,7 +76,7 @@ CY.toFAAR = function (cy) {
     };
   });
 
-  var missingTransition = (numTransitions !== alphabet.length * numStates);
+  missingTransition = (missingTransition || numTransitions !== alphabet.length * numStates);
 
   return new FAAR(numStates, transitions, 0, alphabet, acceptStates, statesMap, multiTransition || missingTransition);
 };
