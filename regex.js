@@ -1,3 +1,4 @@
+(function (){
 var numCalls = 0;
 var maxCalls = 2000
 
@@ -332,7 +333,7 @@ Pow.prototype.toString = function () {
 Pow.random = function (depth, alphabet) {
   var rand = getRandomInt(0, depth);
   if (rand <= 0 || numCalls > maxCalls) {
-    return new Pow(Atom.random(alphabet), getRandomInt(1, 6))
+    return new Pow(Atom.random(alphabet), getRandomInt(2, 6))
 
   } else {
     var newDepth = getRandomInt(0, depth - 1);
@@ -356,14 +357,14 @@ StarPlus.prototype.toString = function () {
   }
 };
 
-StarPlus.random = function (depth) {
+StarPlus.random = function (depth, alphabet) {
   var rand = getRandomInt(0, depth);
   if (rand <= 0 || numCalls > maxCalls) {
     return new StarPlus(new Atom("abcdefghijklmnopqrstuvwxyz"[getRandomInt(0, 25)]));
   } else {
     var newDepth = getRandomInt(0, depth - 1);
       numCalls++;
-    return new StarPlus(regexForms[getRandomInt(0, 6)].random(newDepth));
+    return new StarPlus(regexForms[getRandomInt(0, 6)].random(newDepth, alphabet));
 
   };
 };
@@ -391,5 +392,7 @@ var regexForms = {
   "3": Choice,
   "4": Pow,
   "5": Collect,
-  "6": Dot
+  "6": StarPlus,
+  "7": Dot
 }
+})();

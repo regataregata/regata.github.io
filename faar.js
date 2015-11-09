@@ -1,6 +1,7 @@
 //finite automaton algebraic representation
 
-var FAAR = function (numStates, transitions, startKey, alphabet, acceptStates, statesMap) {
+var FAAR = function (numStates, transitions, startKey, alphabet, acceptStates, statesMap, nfa) {
+  //
   this.numStates = numStates;
 
   this.transitions = transitions;
@@ -71,7 +72,7 @@ FAAR.machineify = function (alg) {
 
 FAAR.prototype.cyNodes = function () {
   var nodes = [];
-  var red = "#C29393"
+  var red = "#C29393";
   // "#CF6D6D"
   // "#CF624C"
   // "#D66340"
@@ -79,11 +80,13 @@ FAAR.prototype.cyNodes = function () {
   // "#D47B8B"
   // '#C9919A'
   var status = red;
+  var accept = '0';
   var name;
   for (var i = 0; i < this.numStates; i++) {
     name = i.toString();
     if (this.acceptStates[i]) {
       status = '#ABC9C1';
+      accept = '1'
       // "#8FCC8F"
       // "#82CF82";
       // "#73D973"
@@ -92,8 +95,9 @@ FAAR.prototype.cyNodes = function () {
     // if (i === 0) {
     //   var name = 'ε';
     // }
-    nodes.push({data: {id: i.toString(), color: status, name: name}})
+    nodes.push({data: {id: i.toString(), color: status, name: name, accept: accept}})
     status = red;
+    accept = '0';
   }
   return nodes;
 };

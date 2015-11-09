@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html>
-
+  <script src="vendor/jquery-1.11.3.js"></script>
+<script src="state.js"></script>
+<script src="util.js"></script>
+<script src="dfa.js"></script>
+<script src="nfa.js"></script>
+<script src="machine_derivative.js"></script>
+<script src="faar.js"></script>
+<script src="regex.js"></script>
+<script src="regex_parser.js"></script>
+<script src="cy.js"></script>
 <head>
   <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
@@ -13,7 +22,7 @@
   <script src="vendor/jquery-1.11.3.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
-    <link href="style.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" >
   <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
   <!-- <script src="builder.js"></script> -->
   <script src="state.js"></script>
@@ -30,7 +39,9 @@
 
 <body>
 
-
+<!-- <div class="transition-submit"> -->
+<input class="transition-submit" type="text" name="name" value="" placeholder="character">
+<!-- </div> -->
   <!-- <div class="top-display">
 
   <div class="regex">
@@ -60,19 +71,65 @@
     <button id='add-state'>add state</button> -->
   </div>
   </div>
-  <div class="input-group form-group-item">
-    <span id="random" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="random" class="glyphicon glyphicon-random"></span></span>
-    <span id="str-submit" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="str-submit" class="glyphicon glyphicon-play"></span></span>
+<!--
+  <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Go!</button>
+        </span>
+        <input type="text" class="form-control" placeholder="Search for...">
+      </div> -->
 
-    <span id="regex-submit" class="input-group-addon" style="background-color:#A9B4C4;border-left:1px;border-right:1px;"><span id="str-submit">to DFA</span></span>
+      <input id="str-input" class="top-display g" placeholder="input" class="form-control">
+
+
+
+<div id=inputs>
+  <div class="input-group">
+    <span id="random" class="input-group-addon" style="background-color:#435473;color:#A9B4C4;border-radius:0px;">
+    <span id="random" class="glyphicon glyphicon-random"></span>
+    </span>
+
+
+
+    <span id="regex-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="regex-submit" class="glyphicon glyphicon-save">
+    </span>
+    </span>
 
 
     <input type='text' placeholder="* + ? {n} | [abc] ." value="" id="regex-input" class="form-control">
+
+
     <!-- <input type='text' placeholder="string" value="" id="str-input" class="form-control"> -->
     <!-- <input type='text' placeholder="alphabet" value="" id="alphabet" class="form-control"> -->
-  </div>
+    <span id="dfa-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="dfa-submit" class="glyphicon glyphicon-share-alt gly-flip-horizontal"></span>
+    </span>
 
-  <input id="str-input" class="top-display g" placeholder="input">
+    <span id="add-state" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="add-state" class="glyphicon glyphicon-plus"></span>
+    </span>
+
+    <span id="set-accept" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="set-accept" class="glyphicon glyphicon-ok"></span>
+    </span>
+
+    <span id="remove-state" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="remove-state" class="glyphicon glyphicon-minus"></span>
+    </span>
+
+    <span id="clear" class="input-group-addon" style="background-color:#A9B4C4;color:#D47B8B;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="clear" class="glyphicon glyphicon-remove"></span>
+    </span>
+  </div>
+</div>
+
+<span id="str-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-left:1px;border-right:1px;">
+<span  class="glyphicon glyphicon-play"></span>
+</span>
+
+
+
     <!-- <div class="alphabet"></div>
     <div class="exp"></div>
     <div class="str">
@@ -88,10 +145,17 @@
 
 
   <div id="cy"></div>
+  <div id="footer" style="color:#435473"> Made by: <a href="http://austindyoung.github.io" class="my n" style="color:white">Austin Young</a>, Graphs rendered with: <a href="http://js.cytoscape.org/"class="my n" style="color:white">Cytoscape.js</a>, Check out <a href="https://github.com/regataregata/regataregata.github.io"class="my n" style="color:white">the code</a> </div>
+
 <script>
 
 
 document.addEventListener('DOMContentLoaded', function(){ // on dom ready
+
+
+
+  $('.transition-submit').hide();
+  $('#regex-input').focus();
   var regex = "";
   var dfa;
   var alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -105,14 +169,7 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
   var c = 0
   var inputPadding = ""
 
-
-  function setDFA(dfa) {
-    $('.read').text("");
-    $('.current').text("");
-    $('.exp').text(regex);
-    $('#regex-input').val(regex)
-    $('#alphabet').val("");
-    cy = cytoscape({
+  var cy = cytoscape({
       container: document.querySelector('#cy'),
 
       boxSelectionEnabled: false,
@@ -158,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
             }),
 
       elements: {
-        nodes: dfa.cyNodes(),
-        edges: dfa.cyEdges()
+        nodes: [],
+        edges: []
       },
 
       layout: {
@@ -174,14 +231,122 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
           return root
         }
       }
-    });
+
+  });
+
+
+  function setDFA(dfa) {
+    // clear();
+
+    $('#regex-input').removeClass('rerender');
+    $('.read').text("");
+    $('.current').text("");
+    $('.exp').text(regex);
+    $('#regex-input').val(regex)
+    $('#alphabet').val("");
+    cy.elements().remove();
+
+    // cy = cytoscape({
+    //   container: document.querySelector('#cy'),
+    //
+    //   boxSelectionEnabled: false,
+    //   autounselectify: true,
+    //
+    //   style: cytoscape.stylesheet()
+    //     .selector('node')
+    //       .css({
+    //         'content': 'data(name)',
+    //         'text-valign': 'center',
+    //         'color': 'white',
+    //         // 'text-outline-width': 1,
+    //         'text-outline-color': '#888',
+    //         'background-color': 'data(color)',
+    //       })
+    //     .selector('edge')
+    //       .css({
+    //         'target-arrow-shape': 'triangle',
+    //         'content': 'data(name)',
+    //         'width': 1,
+    //         'line-color': '#A9B4C4',
+    //         // '#7D91B0'
+    //         // '#8D9DB5'
+    //         'target-arrow-color': '#A9B4C4'
+    //       })
+    //     .selector(':selected')
+    //       .css({
+    //         'background-color': 'black',
+    //         'line-color': 'black',
+    //         'target-arrow-color': 'black',
+    //         'source-arrow-color': 'black'
+    //       })
+    //     .selector('.faded')
+    //       .css({
+    //         'opacity': 0.25,
+    //         'text-opacity': 0
+    //       })
+    //       .selector('.source')
+    //         .css({
+    //           'background-color': '#DBE667',
+    //           'line-color':  '#DBE667',
+    //           'target-arrow-color': '#DBE667'
+    //         }),
+    //
+    //   elements: {
+    //     nodes: dfa.cyNodes(),
+    //     edges: dfa.cyEdges()
+    //   },
+    //
+    //   layout: {
+    //     name: 'concentric',
+    //     fit: true,
+    //     padding: 20,
+    //     minNodeSpacing: 100,
+    //     animate: true,
+    //     startAngle: 0,
+    //     concentric: function (node) {
+    //       var root = node.degree();
+    //       return root
+    //     }
+    //   }
+    // });
+
+
+  nodes.forEach(function (node) {
+    node.group = 'nodes'
+    cy.add(node);
+  });
+  edges.forEach(function (edge) {
+    edge.group = 'edges';
+    cy.add(edge);
+  });
+
   cy.elements('node#0').addClass('source');
+
+  var layout = cy.makeLayout({
+        name: 'concentric',
+        fit: true,
+        padding: 20,
+        minNodeSpacing: 100,
+        animate: true,
+        startAngle: 0,
+        concentric: function (node) {
+          var root = node.degree();
+          return root
+        }
+      });
+
+layout.run();
+
+  // cy.forceRender();
   stateId = dfa.getStates().length;
+
+
   };
 
 
   function generateRandomDFA(alphabet) {
     regex = Regex.random(100, alphabet).toString();
+    $('#regex-input').val(regex)
     // $('.regex').text(regex);
     // $('#regex-input').val(regex);
     dfa = Regex.parse(regex);
@@ -197,17 +362,6 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
   }
 
   generateRandomDFA("abcdefghijklmnopqrstuvwxyz");
-
-  // regex = "a."
-  // dfa = Regex.parse(regex)
-  // alphabet = dfa.alphabet
-  // str = ""
-  // alg = dfa.algebraify()
-  // nodes = dfa.cyNodes()
-  // edges = dfa.cyEdges()
-  // setDFA(dfa)
-
-
 
 
 
@@ -226,58 +380,10 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     // var edges = dfa.cyEdges();
 
 
-  var cy = cytoscape({
-    container: document.querySelector('#cy'),
 
-    boxSelectionEnabled: false,
-    autounselectify: true,
 
-    style: cytoscape.stylesheet()
-      .selector('node')
-        .css({
-          'content': 'data(name)',
-          'text-valign': 'center',
-          'color': 'white',
-          // 'text-outline-width': 1,
-          'text-outline-color': '#888',
-          'background-color': 'data(color)',
-        })
-      .selector('edge')
-        .css({
-          'target-arrow-shape': 'triangle',
-          'content': 'data(name)',
-          'width': 4,
-          'line-color': '#61bffc'
-        })
-      .selector(':selected')
-        .css({
-          'background-color': 'black',
-          'line-color': 'black',
-          'target-arrow-color': 'black',
-          'source-arrow-color': 'black'
-        })
-      .selector('.faded')
-        .css({
-          'opacity': 0.25,
-          'text-opacity': 0
-        })
-        .selector('.source')
-          .css({
-            'background-color': '#DBE667'
-          }),
+  // setDFA(dfa)
 
-    elements: {
-      nodes: [],
-      edges: []
-    },
-
-    layout: {
-      name: 'grid',
-      padding: 100
-    }
-  });
-
-  setDFA(dfa)
   cy.on('tap', 'node', function(e){
     var node = e.cyTarget;
     // var neighborhood = node.neighborhood().add(node);
@@ -291,26 +397,71 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       cy.elements().nodes().removeClass('active')
     } else {
       cy.elements().nodes().addClass('active')
-        node.removeClass('active');
+      cy.elements().nodes().removeClass('source')
+        // node.removeClass('active');
         node.addClass('source');
+
       }
-
-      $().on('kepress', function () {
-
-      })
   });
 
-  // cy.on('tap', function(e){
+  cy.on('tap', 'edge', function(e){
+    cy.elements().removeClass('source');
+    $('.transition-submit').show();
+    $('.transition-submit').focus();
+    var edge = e.cyTarget;
+    edge.addClass('focused');
+
+  });
+
+  $('#set-accept').on('click', function () {
+    cy.elements().removeClass('active');
+    cy.$('.source').data('color', '#ABC9C1');
+    cy.$('.source').data('accept', '1');
+    cy.$('.source').removeClass('source');
+  });
+
+
+  $('body').on('keypress', function (e) {
+    var $submit = $('.transition-submit');
+    if (e.keyCode === 13 && $submit.val() !== "") {
+      cy.$('.focused').data('name', $submit.val()[0]);
+      cy.elements().removeClass('focused');
+      $submit.val("");
+      $submit.hide();
+    } else if(e.keyCode === 13) {
+      $submit.hide();
+    }
+  });
+
     $('#add-state').on('click', function(e){
+      function center() {
+        return [$('body').width() / 2, $('body').height() / 2]
+      }
     cy.add({
-        group: "nodes",
-        data: {id: stateId, color: 'gray', name: stateId},
-        position: { x: event.clientX, y: event.clientY }
+        group: 'nodes',
+        data: {id: stateId, color: '#C29393', name: stateId, accept: '0'},
+        position: { x: 650, y: 250 }
     });
     stateId++;
     // if( e.cyTarget === cy ){
     //   cy.elements().removeClass('faded');
     // }
+  });
+
+  $('#remove-state').on('click', function(e){
+    cy.$('.source').remove();
+    cy.$('.focused').remove();
+    $('.transition-submit').hide();
+  });
+
+  $('#dfa-submit').on('click', function () {
+    var faar = CY.toFAAR(cy);
+    dfa = faar.machineify();
+    alg = dfa.algebraify();
+    nodes = alg.cyNodes();
+    edges = alg.cyEdges();
+    var regex = dfa.toRegex().toString();
+    $('#regex-input').val(regex);
   });
 
   var i = 0
@@ -376,20 +527,23 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     }
   };
 
+  $("#regex-input").on('change', function (e) {
+    $(e.target).addClass('rerender');
+  })
+
   $('#regex-submit').on('click', function (e) {
-      clear();
-    e.preventDefault()
+    clear();
     regex = $('#regex-input').val();
     dfa = Regex.parse(regex);
     alg = dfa.algebraify();
     nodes = alg.cyNodes();
     edges = alg.cyEdges();
-    dfa.cyNodes().forEach(function (node) {
-      cy.add(node);
-    });
-    dfa.cyEdges().forEach(function (edge) {
-      cy.add(edge);
-    })
+    // dfa.cyNodes().forEach(function (node) {
+    //   cy.add(node);
+    // });
+    // dfa.cyEdges().forEach(function (edge) {
+    //   cy.add(edge);
+    // })
 
     setDFA(dfa);
 
@@ -401,11 +555,24 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
     // str = input.slice(Math.floor(inputPad), input.length);
     str = input;
     i = 0
-    regex = $('.regex').text();
+    // regex = $('.regex').text();
+    //
+    if ($('#regex-input').hasClass("rerender")) {
+      regex = $('#regex-input').val();
+      dfa = Regex.parse(regex);
+      setDFA(dfa);
+      $('#regex-input').removeClass("rerender")
+      setTimeout(function () {
+        path = dfa.path(str);
+        alg = dfa.algebraify();
+        highlightNextEle();
+      }, 1000);
+    } else {
 
     path = dfa.path(str);
     alg = dfa.algebraify();
     highlightNextEle();
+  }
   })
 
   function clear() {
@@ -454,6 +621,8 @@ document.addEventListener('DOMContentLoaded', function(){ // on dom ready
       $('#audio').addClass("glyphicon glyphicon-volume-off");
     }
   });
+
+
 });
 
 </script>
