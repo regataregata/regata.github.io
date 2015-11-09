@@ -7,7 +7,7 @@ Regata is two things:
 
 2. A tool for the visualization of the minimal DFA for a given regular language expression and its evaluation of a given string with the use of cytoscape.js for modeling.
 
-It's features include:
+Its features include:
 
 * Regular language expression string parsing
 * Bidirectional NFA-DFA conversion
