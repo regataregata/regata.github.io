@@ -589,6 +589,10 @@ DFA.random = function () {
   return Regex.random(100, "abcdefghijklmnopqrstuvwxyz").toNFA().toDFA();
 }
 
+Regex.toTree = function (str) {
+
+}
+
 
 var regexForms = {
   "0": Union,

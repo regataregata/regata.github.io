@@ -15,10 +15,37 @@ title {
 }
 
 #str-submit {
-width: 100%;
+width: 33.33%;
 position: absolute;
 height: 25px;
 padding-top: 0px;
+border-right-width: 2px;
+border-right-color: "black";
+border-radius: 0px;
+
+/*padding: auto;*/
+}
+
+#step {
+width: 33.33%;
+position: absolute;
+height: 25px;
+padding-top: 0px;
+border-right-width: 2px;
+border-right-color: "black";
+border-radius: 0px;
+
+/*padding: auto;*/
+}
+
+#step-back {
+width: 33.33%;
+position: absolute;
+height: 25px;
+padding-top: 0px;
+border-right-width: 2px;
+border-right-color: "black";
+border-radius: 0px;
 
 /*padding: auto;*/
 }
@@ -32,7 +59,7 @@ input#regex-input {
   top: 500px;
   height: 60px;
   background: #D8DEE8;
-  opacity: .95;
+  opacity: 0;
   width: 80px;
   font-family: Oxygen;
   font-size: 24px;
@@ -50,12 +77,13 @@ z-index: 1000;
 }
 
 .error {
+
   background-color: "black";
   top: 500px;
   height: 55px;
   background: #C29393;
   /*#D8DEE8;*/
-  opacity: .95;
+  opacity: 0;
   width: 500px;
   font-family: Oxygen;
   font-size: 24px;
@@ -199,9 +227,35 @@ span {
   width: 100%;
 }
 
+#action {
+  display: block;
+}
+
+.input-group-addon.left {
+  /*width: 33.33%;*/
+  display: inline-block;
+  float: left;
+  margin-right: 1px;
+
+}
+
+.input-group-addon.right {
+  display: inline-block;
+  right: 0;
+  float: right;
+}
+
+.input-group-addon.mid {
+  display: inline-block;
+  right: 33.33%;
+  float: right;
+}
+
+
 #footer-right {
   float: right;
 }
+
 
 .gly-spin {
   -webkit-animation: spin 2s infinite linear;
