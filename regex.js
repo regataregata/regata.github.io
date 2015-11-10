@@ -589,6 +589,7 @@ DFA.random = function () {
   return Regex.random(100, "abcdefghijklmnopqrstuvwxyz").toNFA().toDFA();
 }
 
+
 var regexForms = {
   "0": Union,
   "1": Concat,
