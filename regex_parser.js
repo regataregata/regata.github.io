@@ -2,7 +2,7 @@ function error() {
 
 };
 
-Regex.lexFirst = function (str) {
+Regex.lexFirst = function (str, tree) {
   var special = ['*', '+', '?', '.', '@', '|', '(', ')', '[', ']', '{', '}'];
   var unaryOperators = ['*', '+', '?', '.'];
   var digits = '0123456789'.split('');
@@ -32,18 +32,38 @@ Regex.lexFirst = function (str) {
         var atom = block[block.length - 1];
         block = block.slice(0, block.length - 1);
         if (block !== '') {
+          if (tree) {
+            result.push(new Word(block));
+          } else {
            result.push(new Word(block).toNFA());
+          }
         }
         if (str[i] === '*') {
+          if (tree) {
+            result.push(new Star(new Atom(atom)));
+          } else {
           result.push(new Star(new Atom(atom)).toNFA());
+          }
         } else if (str[i] === '?') {
+          if (tree) {
+            result.push(new Choice(new Atom(atom)));
+          } else {
           result.push(new Choice(new Atom(atom)).toNFA());
+          }
         } else if (str[i] === '+') {
-          result.push((new Atom(atom).toNFA())._concatenate(new Atom(atom).toNFA()._star()));
+          if (tree) {
+              result.push(new Concat(new Atom(atom), new Star(new Atom(atom))));
+          } else {
+            result.push((new Atom(atom).toNFA())._concatenate(new Atom(atom).toNFA()._star()));
+          }
         }
         i++;
       } else {
-      result.push(new Word(block).toNFA());
+        if (tree) {
+          result.push(new Word(block));
+        } else {
+          result.push(new Word(block).toNFA());
+        }
       }
     } else if (str[i] === '{') {
       i++;
@@ -87,16 +107,29 @@ Regex.lexFirst = function (str) {
         // throw "unclosed '['"
         return [error, 'unclosed "]"']
       };
-      var union = block.split('').map(function (char) {
-        return new Atom(char).toNFA();
-      }).reduce(function (left, right) {
-        return left.union(right);;
-      });
-      result.push(union);
+      if (tree) {
+        var union = block.split('').map(function (char) {
+          return new Atom(char);
+        }).reduce(function (left, right) {
+          return new Union(left, right);
+        });
+        result.push(union);
+      } else {
+        var union = block.split('').map(function (char) {
+          return new Atom(char).toNFA();
+        }).reduce(function (left, right) {
+          return left.union(right);;
+        });
+        result.push(union);
+      }
       i++;
     }
     else if (str[i] === '.') {
-      result.push(anything);
+      if (tree) {
+        result.push(new Dot());
+      } else {
+        result.push(anything);
+      }
       i++;
     }
     else if (str[i] === ']' || str[i] == '}') {
@@ -112,7 +145,7 @@ Regex.lexFirst = function (str) {
 };
 
 
-Regex.lexSecond = function (arr) {
+Regex.lexSecond = function (arr, tree) {
   if (arr[0] === error) {
     return arr;
   };
@@ -167,13 +200,13 @@ function process(operators, precedenceMap) {
 
 };
 
-Regex.lex = function (str) {
-  return Regex.lexSecond(Regex.lexFirst(str));
+Regex.lex = function (str, tree) {
+  return Regex.lexSecond(Regex.lexFirst(str, tree), tree);
 }
 
-Regex.toRPN = function (str) {
-  var stream = Regex.lexFirst(str);
-  stream = Regex.lexSecond(stream);
+Regex.toRPN = function (str, tree) {
+  var stream = Regex.lexFirst(str, tree);
+  stream = Regex.lexSecond(stream, tree);
   if (stream[0] === error) {
     return stream;
   };
@@ -212,27 +245,48 @@ Regex.toRPN = function (str) {
   var functionMap = {};
 
   functionMap['*'] = function (nfa) {
-    return nfa._star();
+    if (tree) {
+      return new Star(nfa);
+    }
+      return nfa._star();
+
   };
 
   functionMap['+'] = function (nfa) {
-    return nfa._starPlus();
+    if (tree) {
+      return new StarPlus(nfa);
+    }
+      return nfa._starPlus();
   };
 
   functionMap['?'] = function (nfa) {
+    if (tree) {
+      return new Choice(nfa);
+    }
     return nfa.choice();
   };
 
   functionMap['@'] = function (left, right) {
+    if (tree) {
+      return new Concat(left, right);
+    }
     return left._concatenate(right);
   };
 
   functionMap['|'] = function (left, right) {
+    if (tree) {
+      return new Union(left, right);
+    }
     return left.union(right);
   };
 
   function getOperator(tok) {
     if (isNumber(tok)) {
+      if (tree) {
+        return function (nfa) {
+          return new Pow(nfa, tok);
+        }
+      }
       return function (nfa) {
         return nfa.pow(tok)
       }
@@ -315,7 +369,7 @@ Regex.toRPN = function (str) {
 
 };
 
-Regex.evaluate = function (stream) {
+Regex.evaluate = function (stream, tree) {
   if (stream[0] === error) {
     return stream;
   };
@@ -354,27 +408,47 @@ Regex.evaluate = function (stream) {
   var functionMap = {};
 
   functionMap['*'] = function (nfa) {
+    if (tree) {
+      return new Star(nfa);
+    }
     return nfa._star();
   };
 
   functionMap['+'] = function (nfa) {
+    if (tree) {
+      return new StarPlus(nfa);
+    }
     return nfa._starPlus();
   };
 
   functionMap['?'] = function (nfa) {
+    if (tree) {
+      return new Choice(nfa);
+    }
     return nfa.choice();
   };
 
   functionMap['@'] = function (left, right) {
+    if (tree) {
+      return new Concat(left, right);
+    }
     return left._concatenate(right);
   };
 
   functionMap['|'] = function (left, right) {
+    if (tree) {
+      return new Union(left, right);
+    }
     return left.union(right);
   };
 
   function getOperator(tok) {
     if (isNumber(tok)) {
+      if (tree) {
+        return function (nfa) {
+          return new Pow(nfa, tok);
+        }
+      }
       return function (nfa) {
         return nfa.pow(tok)
       }
@@ -406,17 +480,28 @@ Regex.evaluate = function (stream) {
       eval(tok);
     };
   }
+  if (tree) {
+    return stack[0];
+  }
   return stack[0].toDFA();
 }
 
-Regex.parse = function (str) {
-  var baseDFA = Regex.evaluate(Regex.toRPN(str));
-  if (baseDFA[0] === error) {
-    return baseDFA[1]
+Regex.parse = function (str, tree) {
+  var base = Regex.evaluate(Regex.toRPN(str, tree), tree);
+  if (base[0] === error) {
+    return base[1]
   }
-  if (str.split('').contains('.')) {
-    return baseDFA
+  if (tree) {
+    return base
   } else {
-    return baseDFA.minimize()
+    if (str.split('').contains('.')) {
+      return base
+    } else {
+      return base.minimize()
+    }
   }
+}
+
+Regex.toTree = function (str) {
+  return Regex.parse(str, true);
 }

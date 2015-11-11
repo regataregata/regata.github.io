@@ -91,7 +91,10 @@
     <span id="random" class="glyphicon glyphicon-random"></span>
     </span>
 
-
+    <span id="simplify" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="simplify" class="glyphicon glyphicon-resize-small">
+    </span>
+    </span>
 
     <span id="regex-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="regex-submit">to DFA
@@ -164,11 +167,14 @@
 
 
 document.addEventListener('DOMContentLoaded', function(){ // on dom ready
-
 $('body').addClass("fresh");
   $('.error').hide();
   $('.transition-submit').hide();
   $('#regex-input').focus();
+  $('#simplify').on('click', function () {
+  var regexIn = $('#regex-input').val()
+  $('#regex-input').val(new Regex(Regex.toTree(regexIn)).simplify())
+  });
   var regex = "";
   var dfa;
   var alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -369,8 +375,10 @@ layout.run();
 
 
   function generateRandomDFA(alphabet) {
-    regex = Regex.random(100, alphabet).toString();
+    var tree =  Regex.random(100, alphabet);
+    regex = tree.toString();
     $('#regex-input').val(regex)
+    console.log(new Regex(Regex.toTree(regex)).simplify().toString());
     // $('.regex').text(regex);
     // $('#regex-input').val(regex);
     dfa = Regex.parse(regex);

@@ -66,6 +66,16 @@ function Regex(exp) {
   this.exp = exp;
 };
 
+Regex.prototype.simplify = function () {
+  var prev = "";
+  var current = this.exp;
+  while (prev.toString() !== current.toString()) {
+    prev = current
+    current = current.simplify();
+  };
+  return current;
+}
+
 var asState = new State(function () {
   return {a: asState};
 }, true);
@@ -152,6 +162,14 @@ Word.prototype.toString = function () {
     return this.exp;
 };
 
+Word.prototype.simplify = function () {
+  return this;
+};
+
+Word.prototype.equals = function (other) {
+  return other.constructor.name === "Word" && new Collect(this.exp).equals(new Collect(other.exp));
+}
+
 var one = new Atom("1").toDFA();
 var zero = new Atom("0").toDFA();
 
@@ -184,9 +202,6 @@ Regex.prototype.toString = function () {
   return this.exp.toString();
 };
 
-Regex.prototype.simplify = function () {
-  this.exp = this.exp.simplify()
-};
 
 
 Star.prototype.toDFA = function () {
@@ -226,6 +241,9 @@ Star.prototype.simplify = function () {
   }
   if (this.exp.constructor.name === "Choice") {
     return new Star((this.exp.exp).simplify());
+  }
+  if (this.exp.constructor.name === "Star") {
+    return new Star(this.exp.exp.simplify());
   }
   return new Star(this.exp.simplify());
 };
@@ -498,7 +516,14 @@ Choice.random = function (depth, alphabet) {
 Choice.prototype.simplify = function () {
   if (this.exp.exp === "_" || this.exp === emptySet) {
     return new Atom("_");
-  } else {
+  }
+  if (this.exp.constructor.name === "Star") {
+    return this.exp.simplify();
+  }
+  if (this.exp.constructor.name === "Choice") {
+    return this.exp.simplify();
+  }
+  else {
     return new Choice(this.exp.simplify());
   }
 
@@ -537,8 +562,9 @@ Pow.random = function (depth, alphabet) {
 };
 
 Pow.prototype.simplify = function () {
-  if (this.exp.constructor.name === "Pow" && this.exp.exp.equals(this.exp)) {
-    return new Pow(this.exp, this.e * this.exp.e);
+
+  if (this.exp.constructor.name === "Pow") {
+    return new Pow(this.exp.exp, this.e * this.exp.e);
   }
   return new Pow(this.exp.simplify(),this.e);
 }
@@ -579,6 +605,7 @@ Regex.random = function (depth, alphabet) {
   numCalls = 0;
   var result = regexForms[getRandomInt(0, 6)].random(depth, alphabet);
   if (result.toString().length > 100) {
+    return Regex.random(depth, alphabet);
   } else {
     return result;
   }
