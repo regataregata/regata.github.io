@@ -92,7 +92,7 @@
     </span>
 
     <span id="simplify" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
-    <span id="simplify" class="glyphicon glyphicon-resize-small">
+    <span id="simplify">simplify
     </span>
     </span>
 
@@ -111,19 +111,19 @@
     <span id="dfa-submit">to Regex</span>
     </span>
 
-    <span id="add-state" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="add-state" class="input-group-addon cons" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="add-state" class="glyphicon glyphicon-plus"></span>
     </span>
 
-    <span id="set-accept" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="set-accept" class="input-group-addon cons" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="set-accept" class="glyphicon glyphicon-ok"></span>
     </span>
 
-    <span id="remove-state" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="remove-state" class="input-group-addon cons" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="remove-state" class="glyphicon glyphicon-minus"></span>
     </span>
 
-    <span id="clear" class="input-group-addon" style="background-color:#A9B4C4;color:#D47B8B;border-radius:0px;border-left:1px;border-right:1px;">
+    <span id="clear" class="input-group-addon cons" style="background-color:#A9B4C4;color:#D47B8B;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="clear" class="glyphicon glyphicon-remove"></span>
     </span>
   </div>
@@ -190,8 +190,12 @@ $('body').addClass("fresh");
   var pause = false;
   var started = false;
   var running = false;
-  var completed = false
+  var completed = false;
+  var constructing = false;
 
+  $('.cons').on('click', function () {
+    constructing = true;
+  })
 
   var cy = cytoscape({
       container: document.querySelector('#cy'),
@@ -238,7 +242,13 @@ $('body').addClass("fresh");
               'background-color': '#DBE667',
               'line-color':  '#DBE667',
               'target-arrow-color': '#DBE667'
-            }),
+            })
+            .selector('.focused')
+              .css({
+                'background-color': '#DBE667',
+                'line-color':  '#DBE667',
+                'target-arrow-color': '#DBE667'
+              }),
 
       elements: {
         nodes: [],
@@ -263,6 +273,7 @@ $('body').addClass("fresh");
 
   function setDFA(dfa) {
     // clear();
+
     $('.glyphicon-pause').addClass("glyphicon-play");
     $('.glyphicon-pause').removeClass("glyphicon-pause");
     started = false;
@@ -275,6 +286,7 @@ $('body').addClass("fresh");
     $('#regex-input').val(regex)
     $('#alphabet').val("");
     cy.elements().remove();
+    constructing = false;
 
     // cy = cytoscape({
     //   container: document.querySelector('#cy'),
@@ -445,13 +457,13 @@ layout.run();
 
   cy.on('tap', 'edge', function(e){
     if (!$('body').hasClass('fresh')) {
-    cy.elements().removeClass('source');
-    $('.transition-submit').css("opacity", .95);
-    $('.transition-submit').show();
-    $('.transition-submit').focus();
-    var edge = e.cyTarget;
-    edge.addClass('focused');
-  }
+      cy.elements().removeClass('source');
+      $('.transition-submit').css("opacity", .95);
+      $('.transition-submit').show();
+      $('.transition-submit').focus();
+      var edge = e.cyTarget;
+      edge.addClass('focused');
+    }
   });
 
   $('body').on('click', function (e) {
@@ -488,7 +500,7 @@ layout.run();
   });
 
     $('#add-state').on('click', function(e){
-          if (!$('body').hasClass('fresh')) {
+      // if (!$('body').hasClass('fresh')) {
       function center() {
         return [$('body').width() / 2, $('body').height() / 2]
       }
@@ -501,15 +513,15 @@ layout.run();
     // if( e.cyTarget === cy ){
     //   cy.elements().removeClass('faded');
     // }
-  } else {
-    clear();
+  // } else {
+  //   clear();
     $('body').removeClass('fresh')
-    cy.add({
-        group: 'nodes',
-        data: {id: stateId, color: '#C29393', name: stateId, accept: '0'},
-        position: { x: 650, y: 250 }
-    });
-  }
+  //   cy.add({
+  //       group: 'nodes',
+  //       data: {id: stateId, color: '#C29393', name: stateId, accept: '0'},
+  //       position: { x: 650, y: 250 }
+  //   });
+  // }
   });
 
   $('#remove-state').on('click', function(e){
@@ -533,6 +545,7 @@ layout.run();
         }, 0);
         return;
       }
+      constructing = false
       dfa = faar.machineify();
       alg = dfa.algebraify();
       nodes = alg.cyNodes();
@@ -650,6 +663,25 @@ layout.run();
 
   $('#str-submit').on('click', function (e) {
     e.preventDefault()
+    if (constructing) {
+    if (!$('body').hasClass('fresh')) {
+      var faar = CY.toFAAR(cy);
+      if (faar.nfa) {
+        setTimeout(function () {
+          $('#transition-error').css("opacity", .95);
+          $('#transition-error').show();
+        }, 0);
+        return;
+      }
+      constructing = false;
+      dfa = faar.machineify();
+      alg = dfa.algebraify();
+      nodes = alg.cyNodes();
+      edges = alg.cyEdges();
+      var regex = dfa.toRegex().toString();
+      $('#regex-input').val(regex);
+    }
+    }
     // debugger
     if (!started) {
       $('.glyphicon-play').addClass("glyphicon-pause");
@@ -690,6 +722,25 @@ layout.run();
 });
 
 $('#step').on('click', function () {
+  if (constructing) {
+  if (!$('body').hasClass('fresh')) {
+    var faar = CY.toFAAR(cy);
+    if (faar.nfa) {
+      setTimeout(function () {
+        $('#transition-error').css("opacity", .95);
+        $('#transition-error').show();
+      }, 0);
+      return;
+    }
+    constructing = false;
+    dfa = faar.machineify();
+    alg = dfa.algebraify();
+    nodes = alg.cyNodes();
+    edges = alg.cyEdges();
+    var regex = dfa.toRegex().toString();
+    $('#regex-input').val(regex);
+  }
+  }
   if (!started) {
     pause = true;
     var input = $('#str-input').val();
@@ -724,6 +775,25 @@ $('#step').on('click', function () {
 });
 //
 $('#step-back').on('click', function () {
+  if (constructing) {
+  if (!$('body').hasClass('fresh')) {
+    var faar = CY.toFAAR(cy);
+    if (faar.nfa) {
+      setTimeout(function () {
+        $('#transition-error').css("opacity", .95);
+        $('#transition-error').show();
+      }, 0);
+      return;
+    }
+    constructing = false;
+    dfa = faar.machineify();
+    alg = dfa.algebraify();
+    nodes = alg.cyNodes();
+    edges = alg.cyEdges();
+    var regex = dfa.toRegex().toString();
+    $('#regex-input').val(regex);
+  }
+  }
   cy.elements().removeClass('source');
   $('#str-input').val(str.slice(0, i) + "  " + str.slice(i, str.length))
   cy.$("#" + currentId).removeClass('source');
@@ -733,7 +803,8 @@ $('#step-back').on('click', function () {
     $('.glyphicon-pause').removeClass("glyphicon-pause");
   }
   if (i > 0) {
-    var backSound = new Audio('./audio/beep-22.mp3');
+    var backSound = new Audio('./audio/button-27.mp3');
+    // 22
     i--;
     if (path[i].id) {
       previousId = alg.statesMap[path[i].id].toString()
