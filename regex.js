@@ -566,6 +566,9 @@ Pow.prototype.simplify = function () {
   if (this.exp.constructor.name === "Pow") {
     return new Pow(this.exp.exp, this.e * this.exp.e);
   }
+  if (this.exp.constructor.name === "Star") {
+    return new Star(this.exp.exp);
+  }
   return new Pow(this.exp.simplify(),this.e);
 }
 
