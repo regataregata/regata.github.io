@@ -133,6 +133,7 @@ FAAR.prototype.cyElements = function () {
 }
 
 FAAR.prototype.machineify = function () {
+  if (!this.nfa) {
   var cache = {};
   var range = [];
   for (var i= 0; i < this.numStates; i++) {
@@ -162,4 +163,6 @@ FAAR.prototype.machineify = function () {
 
   }
   return new DFA(cache[this.startKey], this.alphabet);
+}
+
 };

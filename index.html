@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html>
+  <script src="vendor/jquery-1.11.3.js"></script>
+  <!-- <script src="builder.js"></script> -->
+  <script src="state.js"></script>
+  <script src="util.js"></script>
+  <script src="dfa.js"></script>
+  <script src="nfa.js"></script>
+  <script src="machine_derivative.js"></script>
+  <script src="faar.js"></script>
+  <script src="regex.js"></script>
+  <script src="regex_parser.js"></script>
 <head>
   <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
@@ -41,6 +51,10 @@
 
 <div id="syntax-error" class="error">
   Syntax Error
+</div>
+
+<div id="working">
+  <span class="glyphicon glyphicon-refresh gly-spin"></span>
 </div>
 <input class="transition-submit" type="text" name="name" value="" placeholder="character">
 <!-- </div> -->
@@ -144,25 +158,8 @@
 
 
 </div>
-
-
-    <!-- <div class="alphabet"></div>
-    <div class="exp"></div>
-    <div class="str">
-
-    </div>
-    <div class="read">
-
-    </div>
-    <div class="current">
-
-    </div> -->
-  <!-- </div> -->
-
-
   <div id="cy"></div>
-  <div id="footer" style="color:#435473"> Made by: <a href="http://austindyoung.github.io" class="my n" style="color:white">Austin Young</a> Graphs rendered with: <a href="http://js.cytoscape.org/"class="my n" style="color:white">Cytoscape.js</a> Check out <a href="https://github.com/regataregata/regataregata.github.io"class="my n" style="color:white">the code</a> </div>
-
+  <div id="footer" style="color:#435473">Need an engineer? Made by: <a href="http://austindyoung.github.io" class="my n" style="color:white">Austin Young</a> Graphs rendered with: <a href="http://js.cytoscape.org/"class="my n" style="color:white">Cytoscape.js</a> Check out <a href="https://github.com/regataregata/regataregata.github.io"class="my n" style="color:white">the code</a> </div>
 <script>
 
 
@@ -288,70 +285,6 @@ $('body').addClass("fresh");
     cy.elements().remove();
     constructing = false;
 
-    // cy = cytoscape({
-    //   container: document.querySelector('#cy'),
-    //
-    //   boxSelectionEnabled: false,
-    //   autounselectify: true,
-    //
-    //   style: cytoscape.stylesheet()
-    //     .selector('node')
-    //       .css({
-    //         'content': 'data(name)',
-    //         'text-valign': 'center',
-    //         'color': 'white',
-    //         // 'text-outline-width': 1,
-    //         'text-outline-color': '#888',
-    //         'background-color': 'data(color)',
-    //       })
-    //     .selector('edge')
-    //       .css({
-    //         'target-arrow-shape': 'triangle',
-    //         'content': 'data(name)',
-    //         'width': 1,
-    //         'line-color': '#A9B4C4',
-    //         // '#7D91B0'
-    //         // '#8D9DB5'
-    //         'target-arrow-color': '#A9B4C4'
-    //       })
-    //     .selector(':selected')
-    //       .css({
-    //         'background-color': 'black',
-    //         'line-color': 'black',
-    //         'target-arrow-color': 'black',
-    //         'source-arrow-color': 'black'
-    //       })
-    //     .selector('.faded')
-    //       .css({
-    //         'opacity': 0.25,
-    //         'text-opacity': 0
-    //       })
-    //       .selector('.source')
-    //         .css({
-    //           'background-color': '#DBE667',
-    //           'line-color':  '#DBE667',
-    //           'target-arrow-color': '#DBE667'
-    //         }),
-    //
-    //   elements: {
-    //     nodes: dfa.cyNodes(),
-    //     edges: dfa.cyEdges()
-    //   },
-    //
-    //   layout: {
-    //     name: 'concentric',
-    //     fit: true,
-    //     padding: 20,
-    //     minNodeSpacing: 100,
-    //     animate: true,
-    //     startAngle: 0,
-    //     concentric: function (node) {
-    //       var root = node.degree();
-    //       return root
-    //     }
-    //   }
-    // });
-
 
   nodes.forEach(function (node) {
     node.group = 'nodes'
@@ -373,6 +306,7 @@ $('body').addClass("fresh");
         startAngle: 0,
         concentric: function (node) {
           var root = node.degree();
+
           return root
         }
       });
@@ -388,12 +322,12 @@ layout.run();
 
   function generateRandomDFA(alphabet) {
     var tree =  Regex.random(100, alphabet);
+    var simplified = tree.simplify();
     regex = tree.toString();
     $('#regex-input').val(regex)
-    console.log(new Regex(Regex.toTree(regex)).simplify().toString());
     // $('.regex').text(regex);
     // $('#regex-input').val(regex);
-    dfa = Regex.parse(regex);
+    dfa = Regex.parse(simplified.toString());
     alphabet = dfa.alphabet;
     str = "";
     for (var i = 0; i < 10; i++) {
@@ -403,6 +337,7 @@ layout.run();
     nodes = dfa.cyNodes();
     edges = dfa.cyEdges();
     setDFA(dfa);
+
   }
 
   generateRandomDFA("abcdefghijklmnopqrstuvwxyz");
@@ -500,7 +435,6 @@ layout.run();
   });
 
     $('#add-state').on('click', function(e){
-      // if (!$('body').hasClass('fresh')) {
       function center() {
         return [$('body').width() / 2, $('body').height() / 2]
       }
@@ -510,18 +444,8 @@ layout.run();
         position: { x: 650, y: 250 }
     });
     stateId++;
-    // if( e.cyTarget === cy ){
-    //   cy.elements().removeClass('faded');
-    // }
-  // } else {
-  //   clear();
     $('body').removeClass('fresh')
-  //   cy.add({
-  //       group: 'nodes',
-  //       data: {id: stateId, color: '#C29393', name: stateId, accept: '0'},
-  //       position: { x: 650, y: 250 }
-  //   });
-  // }
+
   });
 
   $('#remove-state').on('click', function(e){
@@ -587,6 +511,7 @@ layout.run();
         $('.glyphicon-pause').addClass("glyphicon-play");
         $('.glyphicon-pause').removeClass("glyphicon-pause");
         $('#str-input').css("background-color", '#ABC9C1')
+        cy.$("#" + currentId).addClass('source');
         return
       } else if (i === path.length - 1) {
         if (audio) {
@@ -601,6 +526,7 @@ layout.run();
         $('.glyphicon-pause').addClass("glyphicon-play");
         $('.glyphicon-pause').removeClass("glyphicon-pause");
         $('#str-input').css("background-color", "#D47B8B")
+        cy.$("#" + currentId).addClass('source');
         return
       } else if (audio){
         tick.play();
@@ -682,7 +608,6 @@ layout.run();
       $('#regex-input').val(regex);
     }
     }
-    // debugger
     if (!started) {
       $('.glyphicon-play').addClass("glyphicon-pause");
       $('.glyphicon-play').removeClass("glyphicon-play");
@@ -744,11 +669,8 @@ $('#step').on('click', function () {
   if (!started) {
     pause = true;
     var input = $('#str-input').val();
-    // str = input.slice(Math.floor(inputPad), input.length);
     str = input;
     i = 0
-    // regex = $('.regex').text();
-    //
     if ($('#regex-input').hasClass("rerender")) {
       regex = $('#regex-input').val();
       dfa = Regex.parse(regex);
@@ -773,7 +695,7 @@ $('#step').on('click', function () {
   pause = true;
 }
 });
-//
+
 $('#step-back').on('click', function () {
   if (constructing) {
   if (!$('body').hasClass('fresh')) {
@@ -804,7 +726,6 @@ $('#step-back').on('click', function () {
   }
   if (i > 0) {
     var backSound = new Audio('./audio/button-27.mp3');
-    // 22
     i--;
     if (path[i].id) {
       previousId = alg.statesMap[path[i].id].toString()
@@ -829,7 +750,6 @@ $('#step-back').on('click', function () {
 
   function clear() {
     cy.remove(cy.elements());
-    // $('.regex').text("");
     $('#regex-input').val("");
     $('#str-input').val("");
     $('#str-input').css('background-color', '#DBE667')
@@ -857,18 +777,8 @@ $('#step-back').on('click', function () {
     var $target = $(e.target)
     $target.val("");
     $target.css('background-color', '#DBE667')
-
-    // "#DEF2AC"
-    // var block = ""
-    // var c = 0;
-    // while (c < inputPad) {
-    // block = block + " ";
-    // c++;
-    // }
-    // inputPadding = block
-    // $target.val(inputPadding)
-    // $target.setCursorPosition(Math.floor(inputPad))
   });
+
   $('#audio').on('click', function () {
     audio = !audio;
     $('#audio').removeClass();

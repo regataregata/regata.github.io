@@ -105,30 +105,6 @@ DFA.prototype.evaluate = function (str) {
 };
 
 DFA.prototype.path = function (str) {
-  // var result = [this.start];
-  // var outsideAlphabet = false;
-  // // str.split('').forEach(function(char) {
-  // for (var k = 0; k < str.length; k++) {
-  //   this.currentState.set();
-  //   if(!this.alphabetHash[str[k]] && !this.currentState.transition.$) {
-  //     // outsideAlphabet = true;
-  //     result.push({accept: false});
-  //     return result;
-  //   }
-  //   this.transition(str[k]);
-  //   result.push(this.currentState);
-  // // }.bind(this));
-  // }
-  // // if (outsideAlphabet) {
-  // //   this.currentState = this.start;
-  // //   // throw 'input outside of alphabet';
-  // //   return
-  // // };
-  // this.currentState = this.start;
-  // return result;
-  //
-
-
   var result = [this.start];
 
   for (var k = 0; k < str.length; k++) {
@@ -648,15 +624,15 @@ DFA.prototype.toRegex = function () {
     return new Union(left, right);
   });
 
-  var prev;
+  // var prev;
+  //
+  // while(result.toString() !== prev && counter < 50000) {
+  //   prev = result.toString();
+  //   result = result.simplify();
+  //   counter++;
+  // }
 
-  while(result.toString() !== prev && counter < 50000) {
-    prev = result.toString();
-    result = result.simplify();
-    counter++;
-  }
-
-  return result;
+  return result.simplify();
 };
 
 
