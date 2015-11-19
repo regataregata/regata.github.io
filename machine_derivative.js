@@ -41,18 +41,6 @@ var MachineDerivative = function (options) {
         var wildDests = span(wildStates, '$');
         close(wildDests);
 
-        // if (destStateMap.length !== 0) {
-        //   var otherDests = destStateMap.map(function (pair) {
-        //     return pair[1];
-        //   }).reduce(function (x, y) {
-        //     return x.unionById(y);
-        //   });
-        // }
-        // if (!otherDests) {
-        //   otherDests = [];
-        // }
-
-
         if (destStateMap.length !== 0) {
           var otherDests = destStateMap.map(function (pair) {
             return pair[1];
@@ -74,24 +62,6 @@ var MachineDerivative = function (options) {
 
         }
       }
-
-      // var wildStates = sourceStates.suchThat(function (state) {
-      //   return state.transition.$;
-      // });
-      // if (wildStates) {
-      //   var wildDests = span(wildStates, '$');
-      //   close(wildDests);
-      //
-      //   if (destStateMap.length !== 0) {
-      //     var otherDests = destStateMap.map(function (pair) {
-      //       return pair[1];
-      //     }).reduce(function (x, y) {
-      //       return x.unionById(y);
-      //     });
-      //     wildDests._unionById(otherDests);
-      //   }
-      //   destStateMap = [['$', wildDests]];
-      // }
 
     var stateTransition = function () {
       var trans = {};
