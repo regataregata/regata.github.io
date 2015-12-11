@@ -22,14 +22,13 @@
 
   <link rel="icon"
         type="image/png"
-        href="ast1.png">
+        href="imgs/ast1.png">
 
   <script src="vendor/jquery-1.11.3.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
     <link href="style.css" rel="stylesheet" >
   <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
-  <!-- <script src="builder.js"></script> -->
   <script src="state.js"></script>
   <script src="util.js"></script>
   <script src="dfa.js"></script>
@@ -57,47 +56,12 @@
   <span class="glyphicon glyphicon-refresh gly-spin"></span>
 </div>
 <input class="transition-submit" type="text" name="name" value="" placeholder="character">
-<!-- </div> -->
-  <!-- <div class="top-display">
-
-  <div class="regex">
-
-  </div>
-  <div class="str">
-
-  </div>
-  <div class="read">
-
-  </div>
-  <div class="current">
-
-  </div>
-</div> -->
   <div class="top-input">
       <span id="audio" class="glyphicon glyphicon-volume-down"></span>
       <div id="title">regata</div>
-    <!-- <div class="top-left form-group">
-
-
-
-    </div> -->
   <div class='top-right'>
-    <!-- <button id="clear">clear</button>
-    <button id="to-dfa">regex</button>
-    <button id='add-state'>add state</button> -->
   </div>
   </div>
-<!--
-  <div class="input-group">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">Go!</button>
-        </span>
-        <input type="text" class="form-control" placeholder="Search for...">
-      </div> -->
-
-
-
-
 
 <div id=inputs>
   <div class="input-group">
@@ -118,9 +82,6 @@
 
     <input type='text' placeholder="* + ? {n} | [abc] ." value="" id="regex-input" class="form-control">
 
-
-    <!-- <input type='text' placeholder="string" value="" id="str-input" class="form-control"> -->
-    <!-- <input type='text' placeholder="alphabet" value="" id="alphabet" class="form-control"> -->
     <span id="dfa-submit" class="input-group-addon" style="background-color:#A9B4C4;color:#435473;border-radius:0px;border-left:1px;border-right:1px;">
     <span id="dfa-submit">to Regex</span>
     </span>
@@ -206,7 +167,6 @@ $('body').addClass("fresh");
             'content': 'data(name)',
             'text-valign': 'center',
             'color': 'white',
-            // 'text-outline-width': 1,
             'text-outline-color': '#888',
             'background-color': 'data(color)',
           })
@@ -216,11 +176,7 @@ $('body').addClass("fresh");
             'content': 'data(name)',
             'width': 1,
             'line-color': '#A9B4C4',
-
-            // '#7D91B0'
-            // '#8D9DB5'
             'target-arrow-color': '#A9B4C4'
-            // '#A9B4C4'
           })
         .selector(':selected')
           .css({
@@ -269,7 +225,6 @@ $('body').addClass("fresh");
 
 
   function setDFA(dfa) {
-    // clear();
 
     $('.glyphicon-pause').addClass("glyphicon-play");
     $('.glyphicon-pause').removeClass("glyphicon-pause");
@@ -311,10 +266,8 @@ $('body').addClass("fresh");
         }
       });
 
-layout.run();
-
-  // cy.forceRender();
-  stateId = dfa.getStates().length;
+      layout.run();
+      stateId = dfa.getStates().length;
 
 
   };
@@ -325,8 +278,6 @@ layout.run();
     var simplified = tree.simplify();
     regex = tree.toString();
     $('#regex-input').val(regex)
-    // $('.regex').text(regex);
-    // $('#regex-input').val(regex);
     dfa = Regex.parse(simplified.toString());
     alphabet = dfa.alphabet;
     str = "";
@@ -342,31 +293,9 @@ layout.run();
 
   generateRandomDFA("abcdefghijklmnopqrstuvwxyz");
 
-
-
-    // var regex = Regex.random(1000).toString();
-    // console.log(regex);
-    // $('.regex').text(regex);
-    // var dfa = Regex.parse(regex);
-    // var alphabet = dfa.alphabet;
-    // var str = "";
-    // for (var i = 0; i < 10; i++) {
-    // str = str + alphabet[getRandomInt(0, alphabet.length)];
-    // }
-    // // $('.str').text(str);
-    // var alg = dfa.algebraify();
-    // var nodes = dfa.cyNodes();
-    // var edges = dfa.cyEdges();
-
-
-
-
-  // setDFA(dfa)
-
   cy.on('tap', 'node', function(e){
     if (!$('body').hasClass('fresh')) {
     var node = e.cyTarget;
-    // var neighborhood = node.neighborhood().add(node);
     if (node.hasClass('active')) {
       cy.add({
         group: 'edges',
@@ -377,13 +306,11 @@ layout.run();
       $('.transition-submit').css("opacity", .95);
       $('.transition-submit').show();
 
-      // node.removeClass('source');
       cy.elements().nodes().removeClass('source')
       cy.elements().nodes().removeClass('active')
     } else {
       cy.elements().nodes().addClass('active')
       cy.elements().nodes().removeClass('source')
-        // node.removeClass('active');
         node.addClass('source');
 
       }
