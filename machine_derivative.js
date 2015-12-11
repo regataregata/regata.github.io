@@ -50,14 +50,12 @@ var MachineDerivative = function (options) {
 
           destStateMap = destStateMap.map(function (pair) {
             return [pair[0], pair[1].unionById(wildDests)];
-            //
           });
         }
 
         if (!otherDests) {
           otherDests = [];
         }
-        // destStateMap = [['$', wildDests.unionById(otherDests)]];
         destStateMap.push(['$', wildDests.takeAwayById(otherDests)]);
 
         }

@@ -22,8 +22,6 @@ NFA.epsilonClosure = function (states) {
 };
 
 NFA.prototype.eachState = function (callback) {
-  // this.start.span({callback: callback, alphabet: this.alphabet});
-  // return this;
   this.start.traverse(function (state) {
     callback(state);
   });
@@ -50,14 +48,10 @@ NFA.set = function (states) {
 };
 
 NFA.prototype.getStates = function () {
-  // if (!this.states) {
   var states = [];
   this.eachState(function (state) {
     states.push(state);
   });
-  // this.states = states;
-// }
-  // return this.states
   return states;
 };
 
@@ -80,12 +74,7 @@ NFA.prototype.dup = function () {
     predicate: function () {
     },
     span: function(states, char) {
-      // if (!states[0].transition[char]) {
-      //   // return states[0].transition.$;
-      //   return [];
-      // } else {
-        return states[0].transition[char];
-      // }
+      return states[0].transition[char];
     },
     wild: function (states, destinations) {
       destinations._unionById(states[0].transition.$)
@@ -118,16 +107,6 @@ NFA.prototype.toDFA = function () {
         destinations._unionById(destination);
       }
     });
-    // var wildTransitions = states.suchThat(function (state) {
-    //   return state.transition.$
-    // });
-    // if (wildTransitions) {
-    //   destinations._unionById(wildTransitions.map(function (state) {
-    //     return state.transition.$;
-    //   }).reduce(function (x, y) {
-    //     return x._unionById(y);
-    //   }));
-    // };
     return destinations;
   };
 
@@ -158,14 +137,12 @@ NFA.prototype.toDFA = function () {
   this.start.set();
   return MachineDerivative({
     alphabet: this.alphabet,
-    // startStates: NFA.epsilonSpan([this.start]),
     startStates: this.start.epsilonClosure(),
     cache: cache,
     predicate: function (x, y) { return x || y },
     span: span,
     wild: wild,
     close: function (states) {
-      // states._unionById(NFA.epsilonSpan(states))
       states._unionById(NFA.epsilonClosure(states));
     },
     setTransition: function (pair, trans, cache) {
@@ -185,7 +162,6 @@ NFA.prototype._star = function () {
   result.eachState(function (state) {
     if (state.accept) {
       if (state.transition["_"]) {
-        // state.transition["_"].push(result.start);
         state.transition["_"]._unionById([result.start]);
 
       } else {
@@ -204,7 +180,6 @@ NFA.prototype._concatenate = function (nfa) {
   leftStates.forEach(function (state) {
     if (state.accept) {
       if (state.transition["_"]) {
-        // state.transition["_"].push(nfa.start);
         state.transition["_"]._unionById([nfa.start]);
       } else {
         state.transition["_"] = [nfa.start];
@@ -236,7 +211,6 @@ NFA.prototype.pow = function (e) {
 
   var base = new NFA(baseStart, []);
 
-  // base.start.accept = true;
   var power = this.dup();
   for (var i = 0; i < e; i++) {
     base = base._concatenate(power);
@@ -247,7 +221,6 @@ NFA.prototype.pow = function (e) {
 NFA.prototype.atLeast = function (num) {
   var base = this.dup();
 
-  // base.start.accept = true;
   var power = this.dup();
   power.start.accept = true;
   for (var i = 1; i < num; i++) {

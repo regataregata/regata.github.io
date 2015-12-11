@@ -173,21 +173,6 @@ Word.prototype.equals = function (other) {
 var one = new Atom("1").toDFA();
 var zero = new Atom("0").toDFA();
 
-// var ones = one.star();
-//
-// var zeros = zero.star();
-//
-// var onesThenZeros = ones.concatenate(zeros)
-//
-// var oneThenZero = one.concatenate(zero);
-//
-// var oneNFA = one.toNFA();
-//
-// var zeroNFA = zero.toNFA();
-//
-// var oneThenZeroNFA = oneNFA._concatenate(zeroNFA)
-
-
 
 
 Regex.prototype.toDFA = function () {
@@ -213,13 +198,8 @@ Star.prototype.toNFA = function () {
 };
 
 Star.prototype.toString = function () {
-
   var chance = getRandomInt(0, 2);
-  // if (chance < 0) {
-    return '(' + this.exp.toString() + ')*';
-  // } else {
-  //   return this.exp.toString() + '*'
-  // }
+  return '(' + this.exp.toString() + ')*';
 };
 
 Star.random = function (depth, alphabet) {
@@ -264,11 +244,7 @@ Concat.prototype.toNFA = function () {
 
 Concat.prototype.toString = function (noParens) {
   var chance = getRandomInt(0, 2);
-    // if (chance === 0) {
-      return '(' + this.left.toString() + this.right.toString()  + ')';
-    // } else {
-      // return this.left.toString() + this.right.toString();
-    // }
+  return '(' + this.left.toString() + this.right.toString()  + ')';
 };
 
 Concat.random = function (depth, alphabet) {
@@ -279,31 +255,22 @@ Concat.random = function (depth, alphabet) {
   var left;
   var right;
   if (leftDepth <= 0 || numCalls > maxCalls) {
-        // console.log('concat1:');
     left = Atom.random(alphabet);
-    // console.log(left);
   }
   if (rightDepth <= 0 || numCalls > maxCalls ){
-      // console.log('concat2:');
     right = Atom.random(alphabet);
-    // console.log(right);
   }
   if (leftDepth !== 0 && numCalls <= maxCalls) {
     left = regexForms[randLeft].random(leftDepth, alphabet);
-      // console.log('concat3');
-      // console.log(left);
     numCalls++;
   }
   if (rightDepth !== 0 && numCalls <= maxCalls) {
     right = regexForms[randRight].random(rightDepth, alphabet);
-      // console.log('concat4');
-      // console.log(right);
     numCalls++;
   };
   if (!(right && left)) {
     console.log('fail concat');
   }
-  // console.log('concat');
   return new Concat(left, right);
 };
 
@@ -314,11 +281,9 @@ Concat.prototype.simplify = function () {
     return emptySet;
   }
   if (leftIdentity && this.right) {
-    // this.right.simplify();
     return this.right.simplify();
   }
   if (rightIdentity && this.left) {
-    // this.left.simplify();
     return this.left.simplify();
   }
   if (this.left.constructor.name === "Pow" && this.right.constructor.name === "Pow" && this.left.exp.equals(this.right.exp)) {
@@ -333,8 +298,6 @@ Concat.prototype.simplify = function () {
   if (this.left.equals(this.right)) {
     return new Pow(this.left, 2);
   }
-    // this.left.simplify();
-    // this.right.simplify();
   return new Concat(this.left.simplify(), this.right.simplify());
 };
 
@@ -353,11 +316,7 @@ Union.prototype.toNFA = function () {
 
 Union.prototype.toString = function (noParens) {
   var chance = getRandomInt(0, 2);
-  // if (chance === 0) {
     return '(' + this.left.toString() + '|' + this.right.toString()  + ')';
-  // } else {
-    // return this.left.toString() + '|' + this.right.toString();
-  // }
 };
 
 
@@ -401,19 +360,11 @@ Union.prototype.simplify = function () {
     return new Atom("_");
   }
   if (leftIdentity) {
-    // this.right.simplify();
     return new Choice(this.right.simplify());
   }
   if (rightIdentity) {
-    // this.left.simplify();
     return new Choice(this.left.simplify());
   }
-  // if (this.left.exp && (this.left.exp === this.right.exp)) {
-  //   console.log(this.left.exp);
-  //   console.log(this.right.exp);
-  //   console.log("-");
-  //   return this.left.simplify();
-  // }
   if (this.left.equals(this.right)) {
     return this.left.simplify();
   }
@@ -491,14 +442,7 @@ Choice.prototype.toNFA = function () {
 
 Choice.prototype.toString = function () {
   var chance = getRandomInt(0, 2);
-  // if (this.exp.exp === "_") {
-  //   return ""
-  // }
-  // if (chance === 0) {
-    return '(' + this.exp.toString() + ')?';
-  // } else {
-    // return this.exp.toString() + '?';
-  // }
+  return '(' + this.exp.toString() + ')?';
 };
 
 Choice.random = function (depth, alphabet) {
@@ -540,11 +484,7 @@ Pow.prototype.toString = function () {
   if (this.exp.exp === "_") {
     return ""
   }
-  // if (chance <= 0) {
-    return '(' + this.exp.toString() + ')' + '{' + this.e.toString() + '}';
-  // } else {
-  //  return this.exp.toString() + '{' + this.e.toString() + '}';
-  // }
+  return '(' + this.exp.toString() + ')' + '{' + this.e.toString() + '}';
 };
 
 Pow.random = function (depth, alphabet) {
@@ -556,8 +496,6 @@ Pow.random = function (depth, alphabet) {
     var newDepth = getRandomInt(0, depth - 1);
     numCalls++;
     return new Pow(regexForms[getRandomInt(0, 6)].random(newDepth, alphabet), getRandomInt(2, 6));
-
-    // return new Pow(Atom.random(alphabet), getRandomInt(1, 11));
   };
 };
 

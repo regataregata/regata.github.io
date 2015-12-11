@@ -63,19 +63,6 @@ DFA.prototype.getAcceptStates = function () {
 };
 
 DFA.prototype.transition = function (char, wild) {
-    // var inAlphabet = true;
-    // this.alphabet.forEach(function(char) {
-    //   if (!this.currentState.trans(char)) {
-    //     inAlphabet = false;
-    //     return;
-    //   }
-    // }.bind(this))
-    // if (!inAlphabet) {
-    //   this.currentState = this.start;
-    //   throw 'missing transition';
-    // }
-    // this.currentState = this.currentState.trans(char);
-
     var nextState = this.currentState.trans(char, wild);
      if (nextState) {
        this.currentState = this.currentState.trans(char, wild);
@@ -689,7 +676,6 @@ DFA.toRegex = function (start, end, k, arr, cache) {
 var evenZeros = new State(function () {return {0: oddZeros, 1: evenZeros}}, true);
 
 var oddZeros = new State(function () {return {0: evenZeros, 1: oddZeros}}, false);
-//
 
 var justEvenZeros = new State(function () {return {0: justOddZeros}}, true);
 var justOddZeros = new State(function () {return {0: justEvenZeros}}, false);

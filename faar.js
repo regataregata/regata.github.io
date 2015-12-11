@@ -88,14 +88,7 @@ FAAR.prototype.cyNodes = function () {
     if (this.acceptStates[i]) {
       status = '#ABC9C1';
       accept = '1'
-      // "#8FCC8F"
-      // "#82CF82";
-      // "#73D973"
-      // '#ABC9C1';
     };
-    // if (i === 0) {
-    //   var name = 'ε';
-    // }
     nodes.push({data: {id: i.toString(), color: status, name: name, accept: accept}})
     status = red;
     accept = '0';

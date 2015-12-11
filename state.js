@@ -29,13 +29,6 @@ State.prototype.set = function () {
 };
 
 State.prototype.trans = function (char, wild) {
-  // this.set();
-  // if (this.transition.$) {
-  //   return this.transition.$
-  // } else {
-  //   return this.transition[char]
-  // }
-
   this.set();
   if (wild) {
     return this.transition.$
