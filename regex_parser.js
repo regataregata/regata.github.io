@@ -343,30 +343,7 @@ Regex.toRPN = function (str, tree) {
   while (stack.length !== 0 && stack[stack.length - 1] !== '(') {
     queue.push(stack.pop())
   };
-
-  // var buff = [];
-  // var length = queue.length;
-  // var i = 0;
-  // while (i < length) {
-  //   if (queue[i] === '*') {
-  //     while (queue[i] === '*') {
-  //       i++;
-  //     }
-  //     buff.push('*');
-  //   } else if (queue[i] === '?') {
-  //     while (queue[i] === '?') {
-  //       i++;
-  //     }
-  //     buff.push('?');
-  //   } else {
-  //     buff.push(queue[i]);
-  //   }
-  //   i++;
-  // }
-  // return buff
-  // }
   return queue
-
 };
 
 Regex.evaluate = function (stream, tree) {
