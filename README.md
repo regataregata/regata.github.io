@@ -1,4 +1,4 @@
-## Regata
+## [Regata](http://regataregata.github.io )
 
 
 Regata is two things:
