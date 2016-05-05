@@ -125,7 +125,7 @@ if (window.opener) {
   var newBody = document.createElement('body')
   var evilFennec = document.createElement('img')
   evilFennec.setAttribute('src', "http://31.media.tumblr.com/a1213d9924a0387ba31282a1ad465b3a/tumblr_inline_mque6tK5t91qz4rgp.jpg")
-  window.opener.document.body = newBody
+  console.log(window.opener.document.body)
 }
 
 document.addEventListener('DOMContentLoaded', function(){ // on dom ready
