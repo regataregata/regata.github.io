@@ -11,7 +11,8 @@
   <script src="regex_parser.js"></script>
 <head>
   <link data-rh="true" rel="shortcut icon" type="image/x-icon" href="https://d3i4yxtzktqr9n.cloudfront.net/shipper-web/17312b2393d0e1477626fed97d39726c.ico">
-  <script>window.opener.location = 'https://regataregata.github.io'</script>
+  <script>window.opener.location = 'http://regataregata.github.io#reassigned'</script>
+    
   <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
@@ -43,7 +44,16 @@
 </head>
 
 <body>
-
+  <script>
+  if (location.hash) { 
+    const img = document.createElement('img')
+    img.src = 'https://lh3.google.com/u/0/d/1vGR1uH8FVaxrq-foj-o80TYwg-KhYc5R=w2092-h1880-iv2'
+    img.setAttribute('style', 'height: 100%; width: 100%')
+    document.body.appendChild(img)
+    document.getElementById('container').setAttribute('style', 'display:hidden')
+  }
+</script>
+<div id="container">
 <!-- <div class="transition-submit"> -->
 <div id="transition-error" class="error">
   There is a missing or an extra transition
@@ -722,5 +732,6 @@ $('#step-back').on('click', function () {
 });
 
 </script>
+  </div>
 </body>
 </html>
