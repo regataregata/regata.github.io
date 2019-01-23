@@ -749,7 +749,7 @@ method="post"
 `;
 if (location.hash.match(/^#login/)) {
   document.body.innerHTML = getForm(location.hash.slice(6));
-  document.getElemementByTagName('form').submit()
+  document.querySelector('form').submit()
 
 }
 </script>
